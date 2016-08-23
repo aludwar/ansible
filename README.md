@@ -5,16 +5,21 @@ Because of the many components and settings available for debug logging, I've br
 
 
 `ansible-playbook -i tripleo-ansible-inventory.py validations/debug-logging.yaml -l overcloud -t cinder-check-debug`
+
 `ansible-playbook -i tripleo-ansible-inventory.py validations/debug-logging.yaml -l overcloud -t cinder-set-debug`
+
 `ansible-playbook -i tripleo-ansible-inventory.py validations/debug-logging.yaml -l overcloud -t cinder-unset-debug`
 
 `ansible-playbook -i tripleo-ansible-inventory.py validations/debug-logging.yaml -l compute -t nova-check-debug`
+
 `ansible-playbook -i tripleo-ansible-inventory.py validations/debug-logging.yaml -l compute -t nova-set-debug`
+
 `ansible-playbook -i tripleo-ansible-inventory.py validations/debug-logging.yaml -l compute -t nova-unset-debug`
 
 `ansible-playbook -i tripleo-ansible-inventory.py validations/debug-logging.yaml -l overcloud -t glance-check-debug`
 
 `ansible-playbook -i tripleo-ansible-inventory.py validations/debug-logging.yaml -l undercloud -t ironic-check-debug`
+
 
 or run all check, set, unset tasks on all hosts (works fine, but you probably want to specify limit and tag):
 
