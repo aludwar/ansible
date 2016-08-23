@@ -3,7 +3,7 @@
 ### debug-logging.yaml usage:
 Because of the many components and settings available for debug logging, I've broken down the playbook into tags that are intended to be used along with the limit subset (-l) of ansible-playbook command. Each component has a tag to "check" the debug logging setting, "set" or enable the debug logging, and lastly "unset" or disable the debug logging. The tags follow this format:
 
-**`<component>-<action->-debug`**
+**`<component>-<action>-debug`**
 
 so:
 
