@@ -1,7 +1,26 @@
 # Repository to track public ansible code
 
 ### debug-logging.yaml usage:
-Because of the many components and settings available for debug logging, I've broken down the playbook into tags that are intended to be used along with the limit subset (-l) of ansible-playbook command. Each component has a tag to "check" the debug logging setting, "set" or enable the debug logging, and lastly "unset" or disable the debug logging. Here are some examples to illustrate intended usage:
+Because of the many components and settings available for debug logging, I've broken down the playbook into tags that are intended to be used along with the limit subset (-l) of ansible-playbook command. Each component has a tag to "check" the debug logging setting, "set" or enable the debug logging, and lastly "unset" or disable the debug logging. The tags follow this format:
+
+<component>-<action->-debug
+
+so:
+
+cinder-check-debug
+
+cinder-set-debug
+
+cinder-unset-debug
+
+or
+
+
+keystone-check-debug
+
+etc.
+
+Here are some examples to illustrate intended usage:
 
 
 `ansible-playbook -i tripleo-ansible-inventory.py validations/debug-logging.yaml -l overcloud -t cinder-check-debug`
