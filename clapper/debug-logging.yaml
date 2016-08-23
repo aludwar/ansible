@@ -1,0 +1,276 @@
+---
+- name: Check, set, or unset debug logging in OpenStack
+  hosts: all
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars:
+    metadata:
+      name: Debug Logging
+      description: > 
+        Display, set, and unset basic debug logging for all components.
+
+        Performs the default debug log enablement for each OpenStack component. Won't
+        do environment specific debug logging such as specific cinder back ends, or
+        neutron plugins. Also won't do component databases. Just the main component 
+        logging.
+      groups:
+        - post-deployment
+
+
+    keystone_log_conf: /etc/keystone/logging.conf
+    keystone_log_section_root: logger_root
+    keystone_log_section_access: logger_access
+    keystone_debug_flag: level
+    keystone_debug_on: DEBUG
+    keystone_debug_off_root: WARNING
+    keystone_debug_off_access: INFO
+    
+    glance_api_log_conf: /etc/glance/glance-api.conf
+    glance_registry_log_conf: /etc/glance/glance-registry.conf
+    glance_debug_flag: debug
+    glance_debug_on: true
+    glance_debug_off: false
+
+    cinder_log_conf: /etc/cinder/cinder.conf
+    cinder_debug_flag: debug
+    cinder_debug_on: true
+    cinder_debug_off: false
+
+    neutron_log_conf: /etc/neutron/neutron.conf
+    neutron_debug_flag: debug
+    neutron_debug_on: true
+    neutron_debug_off: false
+
+    nova_log_conf: /etc/nova/nova.conf
+    nova_debug_flag: debug
+    nova_debug_on: true
+    nova_debug_off: false
+
+    ironic_log_conf: /etc/ironic/ironic.conf
+    ironic_debug_flag: debug
+    ironic_debug_on: true
+    ironic_debug_off: false
+
+  tasks:
+##############################################
+#            Keystone Section
+##############################################
+  - name: Keystone - initial error validation
+    stat: path="{{ keystone_log_conf }}"
+    register: keystone_conf_valid
+    tags: keystone-check-debug, keystone-set-debug, keystone-unset-debug
+
+  - name: Keystone - set debug setting in logger_root
+    become: true
+    command: /usr/bin/openstack-config --set {{ keystone_log_conf }} {{ keystone_log_section_root }} {{ keystone_debug_flag }} {{ keystone_debug_on }}
+    register: keystone_root_debug
+    when: keystone_conf_valid.stat.exists 
+    tags: keystone-set-debug
+
+  - name: Keystone - set debug setting in logger_access
+    become: true
+    command: /usr/bin/openstack-config --set {{ keystone_log_conf }} {{ keystone_log_section_access }} {{ keystone_debug_flag }} {{ keystone_debug_on }}
+    register: keystone_access_debug
+    when: keystone_conf_valid.stat.exists 
+    tags: keystone-set-debug
+
+  - name: Keystone - unset debug setting in logger_root
+    become: true
+    command: /usr/bin/openstack-config --set {{ keystone_log_conf }} {{ keystone_log_section_root }} {{ keystone_debug_flag }} {{ keystone_debug_off_root }}
+    register: keystone_root_debug
+    when: keystone_conf_valid.stat.exists 
+    tags: keystone-unset-debug
+
+  - name: Keystone - unset debug setting in logger_access
+    become: true
+    command: /usr/bin/openstack-config --set {{ keystone_log_conf }} {{ keystone_log_section_access }} {{ keystone_debug_flag }} {{ keystone_debug_off_access }}
+    register: keystone_access_debug
+    when: keystone_conf_valid.stat.exists 
+    tags: keystone-unset-debug
+
+  - name: Keystone - check debug setting in logger_root
+    become: true
+    command: /usr/bin/openstack-config --get {{ keystone_log_conf }} {{ keystone_log_section_root }} {{ keystone_debug_flag }}
+    register: keystone_root_debug_get
+    when: keystone_conf_valid.stat.exists
+    tags: keystone-check-debug
+
+  - name: Keystone - check debug setting in logger_access
+    become: true
+    command: /usr/bin/openstack-config --get {{ keystone_log_conf }} {{ keystone_log_section_access }} {{ keystone_debug_flag }}
+    register: keystone_access_debug_get
+    when: keystone_conf_valid.stat.exists
+    tags: keystone-check-debug
+
+  - debug: msg="Keystone logger_root is set to {{ keystone_root_debug_get.stdout }}"
+    when: keystone_conf_valid.stat.exists or (default_run_only_check | bool)
+    tags: keystone-check-debug 
+
+  - debug: msg="Keystone logger_access is set to {{ keystone_access_debug_get.stdout }}"
+    when: keystone_conf_valid.stat.exists or (default_run_only_check | bool)
+    tags: keystone-check-debug
+
+
+##############################################
+#             Glance Section
+##############################################
+  - name: Glance - initial error validation
+    stat: path="{{ glance_api_log_conf }}"
+    register: glance_api_conf_valid
+    tags: glance-check-debug, glance-set-debug, glance-unset-debug
+
+  - name: Glance - initial error validation
+    stat: path="{{ glance_registry_log_conf }}"
+    register: glance_registry_conf_valid
+    tags: glance-check-debug, glance-set-debug, glance-unset-debug
+
+  - name: Glance - set glance_api debug setting 
+    become: true
+    command: /usr/bin/openstack-config --set {{ glance_api_log_conf }} DEFAULT {{ glance_debug_flag }} {{ glance_debug_on }}
+    register: glance_api_debug
+    when: glance_api_conf_valid.stat.exists and glance_registry_conf_valid.stat.exists 
+    tags: glance-set-debug
+
+  - name: Glance - set glance_registry debug setting
+    become: true
+    command: /usr/bin/openstack-config --set {{ glance_registry_log_conf }} DEFAULT {{ glance_debug_flag }} {{ glance_debug_on }}
+    register: glance_registry_debug
+    when: glance_api_conf_valid.stat.exists and glance_registry_conf_valid.stat.exists 
+    tags: glance-set-debug
+
+  - name: Glance - unset glance_api debug setting
+    become: true
+    command: /usr/bin/openstack-config --set {{ glance_api_log_conf }} DEFAULT {{ glance_debug_flag }} {{ glance_debug_off }}
+    register: glance_api_debug
+    when: glance_api_conf_valid.stat.exists and glance_registry_conf_valid.stat.exists 
+    tags: glance-unset-debug
+
+  - name: Glance - unset glance_registry debug setting
+    become: true
+    command: /usr/bin/openstack-config --set {{ glance_registry_log_conf }} DEFAULT {{ glance_debug_flag }} {{ glance_debug_off }}
+    register: glance_registry_debug
+    when: glance_api_conf_valid.stat.exists and glance_registry_conf_valid.stat.exists 
+    tags: glance-unset-debug
+
+  - name: Glance - check glance_api debug setting
+    become: true
+    command: /usr/bin/openstack-config --get {{ glance_api_log_conf }} DEFAULT {{ glance_debug_flag }}
+    register: glance_api_debug_get
+    when: glance_api_conf_valid.stat.exists and glance_registry_conf_valid.stat.exists
+    tags: glance-check-debug
+
+  - name: Glance - check glance_registry debug setting
+    become: true
+    command: /usr/bin/openstack-config --get {{ glance_registry_log_conf }} DEFAULT {{ glance_debug_flag }}
+    register: glance_registry_debug_get
+    when: glance_api_conf_valid.stat.exists and glance_registry_conf_valid.stat.exists
+    tags: glance-check-debug
+
+  - debug: msg="Glance api debug is set to {{ glance_api_debug_get.stdout }}" 
+    when: glance_api_conf_valid.stat.exists and glance_registry_conf_valid.stat.exists 
+    tags: glance-check-debug
+
+  - debug: msg="Glance registry debug is set to {{ glance_registry_debug_get.stdout }}" 
+    when: glance_api_conf_valid.stat.exists and glance_registry_conf_valid.stat.exists 
+    tags: glance-check-debug
+
+
+##############################################
+#              Cinder Section
+##############################################
+  - name: Cinder - initial error validation
+    stat: path="{{ cinder_log_conf }}"
+    register: cinder_conf_valid
+    tags: cinder-check-debug, cinder-set-debug, cinder-unset-debug
+
+  - name: Cinder - set cinder debug setting
+    become: true
+    command: /usr/bin/openstack-config --set {{ cinder_log_conf }} DEFAULT {{ cinder_debug_flag }} {{ cinder_debug_on }}
+    register: cinder_debug
+    when: cinder_conf_valid.stat.exists 
+    tags: cinder-set-debug
+
+  - name: Cinder - unset cinder debug setting
+    become: true
+    command: /usr/bin/openstack-config --set {{ cinder_log_conf }} DEFAULT {{ cinder_debug_flag }} {{ cinder_debug_off }}
+    register: cinder_debug
+    when: cinder_conf_valid.stat.exists 
+    tags: cinder-unset-debug
+
+  - name: Cinder - check cinder debug setting
+    become: true
+    command: /usr/bin/openstack-config --get {{ cinder_log_conf }} DEFAULT {{ cinder_debug_flag }}
+    register: cinder_debug_get
+    when: cinder_conf_valid.stat.exists
+    tags: cinder-check-debug
+
+  - debug: msg="Cinder debug is set to {{ cinder_debug_get.stdout }}" 
+    when: cinder_conf_valid.stat.exists 
+    tags: cinder-check-debug
+
+
+##############################################
+#             Nova Section
+##############################################
+  - name: Nova - initial error validation
+    stat: path="{{ nova_log_conf }}"
+    register: nova_conf_valid
+    tags: nova-check-debug, nova-set-debug, nova-unset-debug
+
+  - name: Nova - set nova debug setting
+    become: true
+    command: /usr/bin/openstack-config --set {{ nova_log_conf }} DEFAULT {{ nova_debug_flag }} {{ nova_debug_on }}
+    register: nova_debug
+    when: nova_conf_valid.stat.exists 
+    tags: nova-set-debug
+
+  - name: Nova - unset nova debug setting
+    become: true
+    command: /usr/bin/openstack-config --set {{ nova_log_conf }} DEFAULT {{ nova_debug_flag }} {{ nova_debug_off }}
+    register: nova_debug
+    when: nova_conf_valid.stat.exists 
+    tags: nova-unset-debug
+
+  - name: Nova - check nova debug setting
+    become: true
+    command: /usr/bin/openstack-config --get {{ nova_log_conf }} DEFAULT {{ nova_debug_flag }}
+    register: nova_debug_get
+    when: nova_conf_valid.stat.exists
+
+  - debug: msg="Nova debug is set to {{ nova_debug_get.stdout }}" 
+    when: nova_conf_valid.stat.exists 
+    tags: nova-check-debug
+
+
+##############################################
+#            Ironic Section
+##############################################
+  - name: Ironic - initial error validation
+    stat: path="{{ ironic_log_conf }}"
+    register: ironic_conf_valid
+    tags: ironic-check-debug, ironic-set-debug, ironic-unset-debug
+
+  - name: Ironic - set ironic debug setting
+    become: true
+    command: /usr/bin/openstack-config --set {{ ironic_log_conf }} DEFAULT {{ ironic_debug_flag }} {{ ironic_debug_on }}
+    register: ironic_debug
+    when: ironic_conf_valid.stat.exists 
+    tags: ironic-set-debug
+
+  - name: Ironic - unset ironic debug setting
+    become: true
+    command: /usr/bin/openstack-config --set {{ ironic_log_conf }} DEFAULT {{ ironic_debug_flag }} {{ ironic_debug_off }}
+    register: ironic_debug
+    when: ironic_conf_valid.stat.exists 
+    tags: ironic-unset-debug
+
+  - name: Ironic - check ironic debug setting
+    become: true
+    command: /usr/bin/openstack-config --get {{ ironic_log_conf }} DEFAULT {{ ironic_debug_flag }}
+    register: ironic_debug_get
+    when: ironic_conf_valid.stat.exists
+
+  - debug: msg="Ironic debug is set to {{ ironic_debug_get.stdout }}" 
+    when: ironic_conf_valid.stat.exists 
+    tags: ironic-check-debug
