@@ -47,6 +47,26 @@
     nova_debug_on: true
     nova_debug_off: false
 
+    heat_log_conf: /etc/heat/heat.conf
+    heat_debug_flag: debug
+    heat_debug_on: true
+    heat_debug_off: false
+
+    swift_log_conf: /etc/swift/proxy-server.conf
+    swift_debug_flag: log_level
+    swift_debug_on: DEBUG
+    swift_debug_off: INFO
+
+    horizon_log_conf: /etc/openstack-dashboard/local_settings
+    horizon_debug_flag: DEBUG
+    horizon_debug_on: true
+    horizon_debug_off: false
+
+#   also, add error validation in case the file exists, but debug flag is null or not present.
+#   could add when: check as a result of the --get command when it's blank
+#    haproxy_log_conf: https://access.redhat.com/solutions/1465403
+#    commense crazy sed-like shit  
+
     ironic_log_conf: /etc/ironic/ironic.conf
     ironic_debug_flag: debug
     ironic_debug_on: true
@@ -211,6 +231,40 @@
 
 
 ##############################################
+#              Neutron Section
+##############################################
+  - name: Neutron - initial error validation
+    stat: path="{{ neutron_log_conf }}"
+    register: neutron_conf_valid
+    tags: neutron-check-debug, neutron-set-debug, neutron-unset-debug
+
+  - name: Neutron - set neutron debug setting
+    become: true
+    command: /usr/bin/openstack-config --set {{ neutron_log_conf }} DEFAULT {{ neutron_debug_flag }} {{ neutron_debug_on }}
+    register: neutron_debug
+    when: neutron_conf_valid.stat.exists 
+    tags: neutron-set-debug
+
+  - name: Neutron - unset neutron debug setting
+    become: true
+    command: /usr/bin/openstack-config --set {{ neutron_log_conf }} DEFAULT {{ neutron_debug_flag }} {{ neutron_debug_off }}
+    register: neutron_debug
+    when: neutron_conf_valid.stat.exists 
+    tags: neutron-unset-debug
+
+  - name: Neutron - check neutron debug setting
+    become: true
+    command: /usr/bin/openstack-config --get {{ neutron_log_conf }} DEFAULT {{ neutron_debug_flag }}
+    register: neutron_debug_get
+    when: neutron_conf_valid.stat.exists
+    tags: neutron-check-debug
+
+  - debug: msg="Neutron debug is set to {{ neutron_debug_get.stdout }}" 
+    when: neutron_conf_valid.stat.exists 
+    tags: neutron-check-debug
+
+
+##############################################
 #             Nova Section
 ##############################################
   - name: Nova - initial error validation
@@ -237,10 +291,79 @@
     command: /usr/bin/openstack-config --get {{ nova_log_conf }} DEFAULT {{ nova_debug_flag }}
     register: nova_debug_get
     when: nova_conf_valid.stat.exists
+    tags: nova-check-debug
 
   - debug: msg="Nova debug is set to {{ nova_debug_get.stdout }}" 
     when: nova_conf_valid.stat.exists 
     tags: nova-check-debug
+
+
+##############################################
+#             Heat Section
+##############################################
+  - name: Heat - initial error validation
+    stat: path="{{ heat_log_conf }}"
+    register: heat_conf_valid
+    tags: heat-check-debug, heat-set-debug, heat-unset-debug
+
+  - name: Heat - set heat debug setting
+    become: true
+    command: /usr/bin/openstack-config --set {{ heat_log_conf }} DEFAULT {{ heat_debug_flag }} {{ heat_debug_on }}
+    register: heat_debug
+    when: heat_conf_valid.stat.exists 
+    tags: heat-set-debug
+
+  - name: Heat - unset heat debug setting
+    become: true
+    command: /usr/bin/openstack-config --set {{ heat_log_conf }} DEFAULT {{ heat_debug_flag }} {{ heat_debug_off }}
+    register: heat_debug
+    when: heat_conf_valid.stat.exists 
+    tags: heat-unset-debug
+
+  - name: Heat - check heat debug setting
+    become: true
+    command: /usr/bin/openstack-config --get {{ heat_log_conf }} DEFAULT {{ heat_debug_flag }}
+    register: heat_debug_get
+    when: heat_conf_valid.stat.exists
+    tags: heat-check-debug
+
+  - debug: msg="Heat debug is set to {{ heat_debug_get.stdout }}" 
+    when: heat_conf_valid.stat.exists 
+    tags: heat-check-debug
+
+
+##############################################
+#             Swift Section
+##############################################
+  - name: Swift - initial error validation
+    stat: path="{{ swift_log_conf }}"
+    register: swift_conf_valid
+    tags: swift-check-debug, swift-set-debug, swift-unset-debug
+
+  - name: Swift - set swift debug setting
+    become: true
+    command: /usr/bin/openstack-config --set {{ swift_log_conf }} DEFAULT {{ swift_debug_flag }} {{ swift_debug_on }}
+    register: swift_debug
+    when: swift_conf_valid.stat.exists 
+    tags: swift-set-debug
+
+  - name: Swift - unset swift debug setting
+    become: true
+    command: /usr/bin/openstack-config --set {{ swift_log_conf }} DEFAULT {{ swift_debug_flag }} {{ swift_debug_off }}
+    register: swift_debug
+    when: swift_conf_valid.stat.exists 
+    tags: swift-unset-debug
+
+  - name: Swift - check swift debug setting
+    become: true
+    command: /usr/bin/openstack-config --get {{ swift_log_conf }} DEFAULT {{ swift_debug_flag }}
+    register: swift_debug_get
+    when: swift_conf_valid.stat.exists
+    tags: swift-check-debug
+
+  - debug: msg="Swift debug is set to {{ swift_debug_get.stdout }}" 
+    when: swift_conf_valid.stat.exists 
+    tags: swift-check-debug
 
 
 ##############################################
