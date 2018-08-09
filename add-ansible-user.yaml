@@ -13,3 +13,19 @@
        ssh_key_file: .ssh/id_rsa
        password: $6$tn2vIE9oCq.fjQ4r$tUKqkzanIl55aViCecXtOQaqbnKazTni4lDbkOAoSUYt6gjDSC4.XfjfJlHlC7939m88IuyRhCJJ3N7l5SKzD1
        state: present
+
+   - name: Ensure /etc/sudoers.d/ansible file exists
+     copy:
+       content: ""
+       dest: /etc/sudoers.d/ansible
+       force: no
+       group: sys
+       owner: root
+       mode: 0555
+
+   - name: Allow ansible user to have passwordless sudo
+     lineinfile:
+       dest: /etc/sudoers.d/ansible
+       state: present
+       line: 'ansible ALL=(ALL) NOPASSWD: ALL'
+       validate: 'visudo -cf %s'
