@@ -1,0 +1,59 @@
+---
+# This playbook contains common plays that will be run on all nodes.
+
+- name: Install chrony [Fedora distro]
+  dnf: name=chrony state=present
+  when: ansible_distribution == 'Fedora' and ansible_distribution_major_version|int >= 22
+  tags: chrony
+
+- name: Install chrony [RHEL distro]
+  yum: name=chrony state=present
+  when: ansible_distribution == 'RedHat' and ansible_distribution_major_version|int == 7
+  tags: chrony
+
+- name: Install RHEL software needed for the Base role
+  yum: state=present name={{ item }}
+  tags: software
+  when: ansible_distribution == 'RedHat' and ansible_distribution_major_version|int == 7
+  with_items:
+  - wget
+  - net-tools
+  - bind-utils
+  - bash-completion
+  - gpm
+  - deltarpm
+  - sysstat
+  - iotop
+  
+- name: Configure chrony.conf file and restart
+  template: src=chrony.conf.j2 dest=/etc/chrony.conf
+  tags: chrony
+  notify: restart chrony
+
+- name: Enable chrony at boot
+  service: name=chronyd state=started enabled=yes
+  tags: chrony
+
+- name: Update motd
+  template: src=etc.motd dest=/etc/motd
+  tags: motd
+
+- name: Add --long-hostname to getty
+  lineinfile: dest=/etc/systemd/system/getty.target.wants/getty@tty1.service regexp="^ExecStart=" line="ExecStart=-/sbin/agetty --long-hostname --noclear %I $TERM"  state=present
+  tags: getty
+
+- name: Remove annoying system beep
+  template: src=nobeep.conf dest=/etc/modprobe.d/nobeep.conf
+  tags: physical
+
+- name: Add local user aludwar, enable sudo, unroll home directory - Load/copy script
+  template: src=set-aludwar.sh dest=/tmp/set-aludwar.sh mode="u+rwx"   
+   tags: user-setup 
+
+- name: Add local user aludwar, enable sudo, unroll home directory - Run script   
+  command: bash /tmp/set-aludwar.sh   tags: user-setup
+
+- import_playbook: add-ansible-user.yaml
+
+
+# Copy public SSH keys from all office servers

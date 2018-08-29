@@ -1,0 +1,11 @@
+---
+# This playbook deploys the configuration for server/workstation roles for ludwar.ca and Red Hat usage.
+
+- name: Deploy all necessary configuration for a role
+  hosts: all
+  become_user: root
+  become_method: sudo
+  become: yes  
+
+  roles:
+    - base

@@ -1,0 +1,14 @@
+
+driftfile /var/lib/ntp/drift
+
+restrict 127.0.0.1 
+restrict -6 ::1
+
+server {{ ntpserver }}
+server {{ ntpserver1 }}
+server {{ ntpserver2 }}
+server {{ ntpserver3 }}
+
+includefile /etc/ntp/crypto/pw
+
+keys /etc/ntp/keys
