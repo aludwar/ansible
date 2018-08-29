@@ -48,10 +48,11 @@
 
 - name: Add local user aludwar, enable sudo, unroll home directory - Load/copy script
   template: src=set-aludwar.sh dest=/tmp/set-aludwar.sh mode="u+rwx"   
-   tags: user-setup 
+  tags: user-setup 
 
 - name: Add local user aludwar, enable sudo, unroll home directory - Run script   
-  command: bash /tmp/set-aludwar.sh   tags: user-setup
+  command: bash /tmp/set-aludwar.sh   
+  tags: user-setup
 
 - import_playbook: add-ansible-user.yaml
 
