@@ -1,0 +1,7 @@
+---
+# Variables listed here are applicable to all host groups
+
+ntpserver1: 0.ca.pool.ntp.org
+ntpserver2: 1.ca.pool.ntp.org
+ntpserver3: 2.ca.pool.ntp.org
+ntpserver4: 3.ca.pool.ntp.org

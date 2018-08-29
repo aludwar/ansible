@@ -24,6 +24,13 @@
   - deltarpm
   - sysstat
   - iotop
+
+- name: Install RHEL software needed for the Base role
+  yum: state=present name={{ item }}
+  tags: software
+  when: ansible_distribution == 'RedHat' and ansible_distribution_major_version|int == 7 and ansible_virtualization_role == guest and ansible_virtualization_type ==
+  with_items:
+  - rhevm-guest-agent
   
 - name: Configure chrony.conf file and restart
   template: src=chrony.conf.j2 dest=/etc/chrony.conf
