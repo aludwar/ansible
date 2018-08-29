@@ -54,9 +54,33 @@
   command: bash /tmp/set-aludwar.sh   
   tags: user-setup
 
-- name: Import add-ansible-user playbook and run it
-  import_playbook: add-ansible-user.yaml
-  tags: user-setup
+- name: Add 'ansible' user for authentication across the inventory
+  user:
+    name: ansible
+    comment: Ansible User
+    uid: 2000
+    shell: /bin/bash
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+    password: $6$tn2vIE9oCq.fjQ4r$tUKqkzanIl55aViCecXtOQaqbnKazTni4lDbkOAoSUYt6gjDSC4.XfjfJlHlC7939m88IuyRhCJJ3N7l5SKzD1
+    state: present
+
+- name: Ensure /etc/sudoers.d/ansible file exists
+  copy:
+    content: ""
+    dest: /etc/sudoers.d/ansible
+    force: no
+    group: sys
+    owner: root
+    mode: 0555
+
+- name: Allow ansible user to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers.d/ansible
+    state: present
+    line: 'ansible ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
 
 
 # Copy public SSH keys from all office servers
