@@ -54,7 +54,9 @@
   command: bash /tmp/set-aludwar.sh   
   tags: user-setup
 
-- import_playbook: add-ansible-user.yaml
+- name: Import add-ansible-user playbook and run it
+  import_playbook: add-ansible-user.yaml
+  tags: user-setup
 
 
 # Copy public SSH keys from all office servers
