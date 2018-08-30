@@ -46,7 +46,7 @@
    - ansible_virtualization_role == 'guest'
    - ansible_virtualization_type == 'RHEV'
   with_items:
-   - rhevm-guest-agent
+   - ovirt-guest-agent
   tags: software
   
 - name: Configure chrony.conf file and restart
