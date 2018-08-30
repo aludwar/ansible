@@ -24,6 +24,7 @@
   - deltarpm
   - sysstat
   - iotop
+  - sos
 
 - name: Install software needed for RHEV virtual machines
   yum: state=present name={{ item }}
