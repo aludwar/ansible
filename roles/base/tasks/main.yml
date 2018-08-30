@@ -39,7 +39,10 @@
   - rhevm-guest-agent
 
 - name: Start/enable software needed for RHEV virtual machines
-  systemd:  state=started enabled=yes  name= {{ item }}
+  systemd:
+   name: "{{ item }}"
+   state: started
+   enabled: yes
   when:
    - ansible_virtualization_role is defined
    - ansible_distribution == 'RedHat' 
@@ -47,7 +50,7 @@
    - ansible_virtualization_role == 'guest'
    - ansible_virtualization_type == 'RHEV'
   with_items:
-   - ovirt-guest-agent
+   - 'ovirt-guest-agent'
   tags: software
   
 - name: Configure chrony.conf file and restart
