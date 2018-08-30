@@ -25,7 +25,7 @@
   - sysstat
   - iotop
 
-- name: Install RHEL software needed for the Base role
+- name: Install software needed for RHEV virtual machines
   yum: state=present name={{ item }}
   tags: software
   when:
