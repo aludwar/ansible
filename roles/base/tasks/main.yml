@@ -28,7 +28,12 @@
 - name: Install RHEL software needed for the Base role
   yum: state=present name={{ item }}
   tags: software
-  when: ansible_distribution == 'RedHat' and ansible_distribution_major_version|int == 7 and ansible_virtualization_role == guest and ansible_virtualization_type == RHEV
+  when:
+   - ansible_virtualization_role is defined
+   - ansible_distribution == 'RedHat' 
+   - ansible_distribution_major_version|int == 7 
+   - ansible_virtualization_role == 'guest'
+   - ansible_virtualization_type == 'RHEV'
   with_items:
   - rhevm-guest-agent
   
@@ -53,11 +58,38 @@
   template: src=nobeep.conf dest=/etc/modprobe.d/nobeep.conf
   tags: physical
 
-- name: Add local user aludwar, enable sudo, unroll home directory - Load/copy script
+- name: Add 'aludwar' admin user
+  user:
+    name: aludwar
+    comment: Andrew Ludwar
+    uid: 1000
+    shell: /bin/bash
+    password: $6$/xFdPAJvqAbyB/I7$KPqseBHmBZJ4qRW09hYnO8uX.GEyqga/3DaelNzTT0ZahpdAX2k/4hphXcz24lgID7VgGM1FZ1vnr7obAU09w1
+  tags: user-setup
+
+- name: Ensure /etc/sudoers.d/admins file exists
+  copy:
+    content: ""
+    dest: /etc/sudoers.d/admins
+    force: no
+    group: sys
+    owner: root
+    mode: 0555
+  tags: user-setup 
+
+- name: Allow aludwar user to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers.d/admins
+    state: present
+    line: 'aludwar ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+  tags: user-setup 
+
+- name: Unroll home directory - aludwar - Load/copy script
   template: src=set-aludwar.sh dest=/tmp/set-aludwar.sh mode="u+rwx"   
   tags: user-setup 
 
-- name: Add local user aludwar, enable sudo, unroll home directory - Run script   
+- name: Unroll home directory - aludwar -  Run script   
   command: bash /tmp/set-aludwar.sh   
   tags: user-setup
 
@@ -72,6 +104,7 @@
     ssh_key_file: .ssh/id_rsa
     password: $6$tn2vIE9oCq.fjQ4r$tUKqkzanIl55aViCecXtOQaqbnKazTni4lDbkOAoSUYt6gjDSC4.XfjfJlHlC7939m88IuyRhCJJ3N7l5SKzD1
     state: present
+  tags: user-setup
 
 - name: Ensure /etc/sudoers.d/ansible file exists
   copy:
