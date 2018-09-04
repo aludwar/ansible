@@ -25,6 +25,7 @@
   - sysstat
   - iotop
   - sos
+  - insights-client
 
 - name: Install software needed for RHEV virtual machines
   yum: state=present name={{ item }}
