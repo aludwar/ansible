@@ -26,6 +26,7 @@
   - iotop
   - sos
   - insights-client
+  - iperf3
 
 - name: Install software needed for RHEV virtual machines
   yum: state=present name={{ item }}
