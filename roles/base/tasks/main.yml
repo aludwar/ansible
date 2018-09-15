@@ -27,6 +27,8 @@
   - sos
   - insights-client
   - iperf3
+  - katello-agent
+  - fio
 
 - name: Install software needed for RHEV virtual machines
   yum: state=present name={{ item }}
