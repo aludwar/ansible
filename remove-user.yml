@@ -9,7 +9,7 @@
     user: "{{ username }}"
 
   tasks:
-    - name: Add "{{ user }}" to systems
+    - name: Remove "{{ user }}" from systems
       user:
         name: "{{ user }}"
         shell: /bin/bash
@@ -29,7 +29,7 @@
         owner: root
         mode: 0555
     
-    - name: Allow "{{ user }}" to have passwordless sudo
+    - name: Remove "{{ user }}" access to passwordless sudo
       lineinfile:
         dest: /etc/sudoers.d/users
         state: absent
