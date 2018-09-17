@@ -1,0 +1,37 @@
+---                                                                                                                                                                                                         
+# This playbook adds a user, and expects to be passed a username variable on the ansible-playbook command line
+- hosts: all
+  become_user: root
+  become_method: sudo
+  become: yes  
+  #remote_user: ansible
+  vars: 
+    user: "{{ username }}"
+
+  tasks:
+    - name: Add "{{ user }}" to systems
+      user:
+        name: "{{ user }}"
+        shell: /bin/bash
+        generate_ssh_key: yes 
+        ssh_key_bits: 2048
+        ssh_key_file: .ssh/id_rsa
+        password: $6$tn2vIE9oCq.fjQ4r$tUKqkzanIl55aViCecXtOQaqbnKazTni4lDbkOAoSUYt6gjDSC4.XfjfJlHlC7939m88IuyRhCJJ3N7l5SKzD1
+        state: present
+      tags: user-setup
+    
+    - name: Ensure /etc/sudoers.d/users file exists
+      copy:
+        content: ""
+        dest: /etc/sudoers.d/users
+        force: no
+        group: sys 
+        owner: root
+        mode: 0555
+    
+    - name: Allow "{{ user }}" to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers.d/users
+        state: present
+        line: '"{{ user }}" ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
