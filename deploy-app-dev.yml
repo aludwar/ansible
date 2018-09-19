@@ -34,7 +34,7 @@
         service: "{{ item }}"
         permanent: true
         state: enabled
+        immediate: yes
       with_items:
         - https
         - http
-      notify: restart firewalld
