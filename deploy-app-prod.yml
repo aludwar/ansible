@@ -15,9 +15,9 @@
 
     - name: Deploy web application
       git:
-      repo: 'https://github.com/aludwar/webapp.git'
-      dest: /var/www/html
-      version: release-0.22
+       repo: 'https://github.com/aludwar/webapp.git'
+       dest: /var/www/html
+       #version: release-0.22
     
     - name: Start/enable web server
       systemd:
@@ -34,6 +34,7 @@
         service: "{{ item }}"
         permanent: true
         state: enabled
+        immediate: yes
       with_items:
         - https
         - http
