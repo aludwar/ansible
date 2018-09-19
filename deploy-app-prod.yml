@@ -1,6 +1,6 @@
 ---                                                                                                                                                                                                         
 # This playbook adds a user, and expects to be passed a username variable on the ansible-playbook command line
-- hosts: web_servers
+- hosts: prod_web_servers
   become_user: root
   become_method: sudo
   become: yes  
