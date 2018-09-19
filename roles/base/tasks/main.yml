@@ -29,6 +29,7 @@
   - iperf3
   - katello-agent
   - fio
+  - git
 
 - name: Install software needed for RHEV virtual machines
   yum: state=present name={{ item }}
