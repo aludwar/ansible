@@ -17,7 +17,7 @@
       git:
       repo: 'https://github.com/aludwar/webapp.git'
       dest: /var/www/html
-      version: release-0.22
+      #version: release-0.22
     
     - name: Start/enable web server
       systemd:
