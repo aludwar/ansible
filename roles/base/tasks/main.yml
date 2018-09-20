@@ -41,7 +41,7 @@
    - ansible_virtualization_role == 'guest'
    - ansible_virtualization_type == 'RHEV'
   with_items:
-  - rhevm-guest-agent
+  - 'ovirt-guest-agent'
 
 - name: Start/enable software needed for RHEV virtual machines
   systemd:
