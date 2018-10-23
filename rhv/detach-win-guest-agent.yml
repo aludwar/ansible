@@ -8,7 +8,7 @@
         password: <password>
         hostname: rhevm.ludwar.ca
     
-    - name: Attach ISO to Windows VMs
+    - name: Detach ISO to Windows VMs
       ovirt_vms:
         auth: "{{ ovirt_auth }}"
         name: "{{ item }}"
