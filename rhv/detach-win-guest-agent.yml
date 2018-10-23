@@ -1,0 +1,22 @@
+- hosts: rhevm
+  become_user: root
+
+  tasks:
+    - name: Authenticate to RHV
+      ovirt_auth:
+        username: admin@internal
+        password: <password>
+        hostname: rhevm.ludwar.ca
+    
+    - name: Attach ISO to Windows VMs
+      ovirt_vms:
+        auth: "{{ ovirt_auth }}"
+        name: "{{ item }}"
+        cd_iso: ''
+        state: running
+      loop: "{{ groups['windows'] }}"
+
+    - name: Revoke SSO token after use
+      ovirt_auth:
+        state: absent
+        ovirt_auth: "{{ ovirt_auth }}"
