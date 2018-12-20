@@ -1,0 +1,5 @@
+---
+- name: Run PCI-DSS Compliance Scan
+  hosts: all
+  roles:
+    - { role: ansible-security-compliance.rhel7-role-pci-dss }
