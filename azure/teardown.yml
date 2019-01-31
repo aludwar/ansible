@@ -1,0 +1,34 @@
+---
+- name: Delete AnsibleLab Azure Resources
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  vars:
+    res_group: rgAnsibleLab
+    azure_client_id: "{{ lookup('env', 'AZURE_CLIENT_ID')}}"
+    azure_tenant: "{{ lookup('env', 'AZURE_TENANT')}}"
+    azure_subscription_id: "{{ lookup('env', 'AZURE_SUBSCRIPTION_ID')}}"
+    azure_secret: "{{ lookup('env', 'AZURE_SECRET')}}"
+
+
+  pre_tasks:
+    - name: Validate that we have a res_group
+      assert:
+          that: res_group is defined
+          msg: You need to pass res_group as an extra parameter to execute this playbook, or define it within.
+
+    - name: Do we have our AZURE Credentials
+      assert:
+        { that: "{{ item }} != ''" }
+      with_items:
+        - azure_client_id
+        - azure_tenant
+        - azure_subscription_id
+        - azure_secret 
+
+  tasks:
+    - name: Delete "{{ res_group }}" resource group and everything within it
+      azure_rm_resourcegroup:
+        state: absent
+        name: "{{ res_group }}"
+        force: yes
