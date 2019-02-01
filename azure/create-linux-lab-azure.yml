@@ -286,7 +286,7 @@
           when: get_tower.changed or ansible_tower_install != false 
         - name: Install python components to Tower host
           yum: 
-            name: [python2-pip, python2-winrm, python2-requests, python2-libselinux]  
+            name: [python2-pip, python2-winrm, python2-requests, libselinux-python]  
             state: installed
       delegate_to: tower 
 
