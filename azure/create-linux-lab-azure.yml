@@ -290,14 +290,9 @@
             state: installed
       delegate_to: tower 
 
-    - name: Display created VM info in rgAnsibleLab.txt
-      tags:
-        - always
-      copy:
-        dest: rgAnsibleLab.txt
-        content: |
-          Azure Ansible Lab
+    - name: Display created VM info
+      debug:
+        msg: "Azure Ansible Lab
 
           Tower url is https://{{ create_centos_vm_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}/ 
-          Managed host is {{ create_centos_vm2_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}/ 
-
+          Managed host is {{ create_centos_vm2_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}/" 
