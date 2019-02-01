@@ -12,6 +12,7 @@
       when: ansible_distribution == 'RedHat' and ansible_distribution_major_version|int == 7
       with_items:
       - httpd
+      - git
 
     - name: Deploy web application
       git:
