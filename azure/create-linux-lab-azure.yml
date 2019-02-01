@@ -201,6 +201,7 @@
         ssh_public_keys:
           - path: /home/{{ default_username }}/.ssh/authorized_keys
             key_data: "{{ lookup('file', 'insecure.pub') }}"       
+      register: create_centos_vm_output
 
     - name: Create Managed Host VM
       azure_rm_virtualmachine:
@@ -226,6 +227,7 @@
         ssh_public_keys:
           - path: /home/{{ default_username }}/.ssh/authorized_keys
             key_data: "{{ lookup('file', 'insecure.pub') }}"       
+      register: create_centos_vm2_output
 
     - name: Add Tower host to dynamic inventory
       add_host:
@@ -274,4 +276,15 @@
             name: [python2-pip, python2-winrm, python2-requests]  
             state: installed
       delegate_to: tower 
+
+    - name: Display created VM info in rgAnsibleLab.txt
+      tags:
+        - always
+      copy:
+        dest: rgAnsibleLab.txt
+        content: |
+          Azure Ansible Lab
+
+          Tower url is https://{{ create_centos_vm_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}/ 
+          Managed host is {{ create_centos_vm2_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}/ 
 
