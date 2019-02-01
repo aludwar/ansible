@@ -246,39 +246,47 @@
     - name: Prepare the Tower host
       become: true
       block:
-        - wait_for:
+        - name: Wait for host to become available via SSH
+          wait_for:
             port: 22
             timeout: 3000
-        - file:
+        - name: Create home directory for labs content
+          file:
             path: "/home/{{ default_username }}/labs"
             state: "directory"
             owner: "{{ default_username }}"
             mode: 0755
             group: "{{ default_username }}"
-        - template:
+        - name: Place sudoers entry for waagent
+          template:
             dest: "/etc/sudoers.d/waagent" 
             src: "templates/waagent.j2" 
             mode: 0600
             owner: root 
             group: root    
-        - get_url:
+        - name: Download Ansible Tower release
+          get_url:
             dest: /var/tmp 
             url: "{{ ansible_tower_release_url }}" 
           register: get_tower
-        - unarchive:
+        - name: Extract Ansible Tower release archive
+          unarchive:
             dest: /var/tmp/ 
             src: "/var/tmp/{{ ansible_tower_archive }}" 
             remote_src: yes 
           when: get_tower.changed
-        - replace:
+        - name: Change default Ansible Tower admin password
+          replace:
             path: "/var/tmp/{{ ansible_tower_basename }}-{{ ansible_tower_version }}/inventory" 
             regexp: "^(.*)_password=''" 
             replace: "\\1_password='ansible'"
           when: get_tower.changed
-        - command: "/var/tmp/{{ ansible_tower_basename }}-{{ ansible_tower_version }}/setup.sh"
+        - name: Install Ansible Tower
+          command: "/var/tmp/{{ ansible_tower_basename }}-{{ ansible_tower_version }}/setup.sh"
           when: get_tower.changed or ansible_tower_install != false 
-        - yum: 
-            name: [python2-pip, python2-winrm, python2-requests]  
+        - name: Install python components to Tower host
+          yum: 
+            name: [python2-pip, python2-winrm, python2-requests, python2-libselinux]  
             state: installed
       delegate_to: tower 
 
