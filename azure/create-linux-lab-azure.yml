@@ -17,6 +17,11 @@
     centos_vm_size: Standard_D2_v3
     centos_ip_address: "10.0.0.10"
     centos_ip_address2: "10.0.0.11"
+    ansible_tower_install: false
+    ansible_tower_basename: "ansible-tower-setup"
+    ansible_tower_version: "3.3.0-1"
+    ansible_tower_archive: "{{ ansible_tower_basename }}-{{ ansible_tower_version }}.tar.gz"
+    ansible_tower_release_url: "http://releases.ansible.com/ansible-tower/setup/{{ ansible_tower_archive }}"
     
     azure_client_id: "{{ lookup('env', 'AZURE_CLIENT_ID')}}"
     azure_tenant: "{{ lookup('env', 'AZURE_TENANT')}}"
@@ -232,7 +237,7 @@
     - name: Add Tower host to dynamic inventory
       add_host:
         name: "tower"
-        ansible_host: "{{ centos_ip_address }}"
+        ansible_host: "{{ create_centos_vm_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}"
         ansible_user: "{{ default_username }}"
         ansible_ssh_pass: "{{ default_password }}"
         ansible_sudo_pass: "{{ default_password }}"
@@ -245,14 +250,14 @@
             port: 22
             timeout: 3000
         - file:
-            path: "/home/{{ username }}/labs"
+            path: "/home/{{ default_username }}/labs"
             state: "directory"
-            owner: "{{ username }}"
+            owner: "{{ default_username }}"
             mode: 0755
-            group: "{{ username }}"
+            group: "{{ default_username }}"
         - template:
             dest: "/etc/sudoers.d/waagent" 
-            src: "waagent.j2" 
+            src: "templates/waagent.j2" 
             mode: 0600
             owner: root 
             group: root    
