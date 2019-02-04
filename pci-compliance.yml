@@ -1,5 +1,5 @@
 ---
 - name: Run PCI-DSS Compliance Scan
-  hosts: web1.prod.ludwar.ca
+  hosts: web
   roles:
     - { role: ansible-security-compliance.rhel7-role-pci-dss }
