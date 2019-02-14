@@ -1,0 +1,91 @@
+---
+- name: Configure RHEL8 Beta host
+  hosts: all
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    USE_FIREWALL: 1
+    MOUNT_REPOS_BASE: mnt/BaseOS
+    MOUNT_REPOS_APPSTREAM: mnt/AppStream
+
+
+  tasks:
+    - name: Mount RHEL8 ISO for copying yum repo
+      mount:
+        path: /mnt
+        src: /dev/cdrom
+        fstype: iso9660
+        opts: ro,noauto
+        state: present
+
+    - name: Copy RHEL8 ISO AppStream
+      copy:
+        src: /dev/cdrom/AppStream
+        dest: /mnt/AppStream
+        owner: root
+        group: root
+        mode: 0664
+
+    - name: Copy RHEL8 ISO BaseOS
+      copy:
+        src: /dev/cdrom/BaseOS
+        dest: /mnt/BaseOS
+        owner: root
+        group: root
+        mode: 0664
+
+    - name:  Configure Composer Source Content for RHEL 8 base
+      yum_repository:
+        name: composer-rhel-8-BaseOS
+        description: Red Hat Enterprise Linux 8 Server (RPMs)
+        file: composer
+        metadata_expire: 86400
+        baseurl: file:///{{ MOUNT_REPOS_BASE }}
+        gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+        enabled: 1
+        gpgcheck: 1
+        state: present
+
+    - name:  Configure Composer Source Content for RHEL 8 appstream
+      yum_repository:
+        name: composer-rhel-8-AppStream
+        description: Red Hat Enterprise Linux 8 AppStream
+        file: composer
+        metadata_expire: 86400
+        baseurl: file:///{{ MOUNT_REPOS_APPSTREAM }}
+        gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+        enabled: 1
+        gpgcheck: 1
+        state: present
+
+    - name: Install Composer & Cockpit packages
+      yum:
+        name: cockpit, cockpit-dashboard, libvirt-dbus, cockpit-machines, cockpit-composer, composer-cli, lorax-composer
+        state: installed
+
+    - name: Configure Firewall for Cockpit
+      firewalld:
+        service: "{{ item }}"
+        permanent: true
+        state: enabled
+        immediate: yes
+      with_items:
+        - 'cockpit.socket'
+        - 'lorax-composer.socket'
+
+    - name: Enable and Start Composer service
+      service:
+        name: lorax-composer.service
+        state: started
+        enabled: yes
+
+    - name: Enable and Start Cockpit service
+      service:
+        name: cockpit.socket
+        state: started
+        enabled: yes
+
+    - name: Set SELinux in permissive mode
+      selinux:
+        policy: targeted
+        state: permissive
