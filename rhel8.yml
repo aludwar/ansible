@@ -5,8 +5,8 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
     USE_FIREWALL: 1
-    MOUNT_REPOS_BASE: mnt/BaseOS
-    MOUNT_REPOS_APPSTREAM: mnt/AppStream
+    MOUNT_REPOS_BASE: data/BaseOS
+    MOUNT_REPOS_APPSTREAM: data/AppStream
 
 
   tasks:
@@ -18,21 +18,23 @@
         opts: ro,noauto
         state: present
 
+    - name: Create AppStream directory for copying into
+      file:
+        path: /data/AppStream
+        state: directory
+        mode: 0755
+
     - name: Copy RHEL8 ISO AppStream
-      copy:
-        src: /dev/cdrom/AppStream
-        dest: /mnt/AppStream
-        owner: root
-        group: root
-        mode: 0664
+      command: cp -rp /mnt/AppStream /data/AppStream
+
+    - name: Create BaseOS directory for copying into
+      file:
+        path: /data/AppStream
+        state: directory
+        mode: 0755
 
     - name: Copy RHEL8 ISO BaseOS
-      copy:
-        src: /dev/cdrom/BaseOS
-        dest: /mnt/BaseOS
-        owner: root
-        group: root
-        mode: 0664
+      command: cp -rp /mnt/BaseOS /data/BaseOS
 
     - name:  Configure Composer Source Content for RHEL 8 base
       yum_repository:
@@ -70,8 +72,7 @@
         state: enabled
         immediate: yes
       with_items:
-        - 'cockpit.socket'
-        - 'lorax-composer.socket'
+        - 'cockpit'
 
     - name: Enable and Start Composer service
       service:
@@ -89,3 +90,9 @@
       selinux:
         policy: targeted
         state: permissive
+
+    - name: Install packages needed for Composer repos
+      yum:
+        name: yum-utils, createrepo, httpd
+        state: installed
+
