@@ -3,7 +3,7 @@
   hosts: all
   become: yes
   vars:
-    ansible_python_interpreter: /usr/bin/python3
+    ansible_python_interpreter: /usr/libexec/platform-python
     USE_FIREWALL: 1
     MOUNT_REPOS_BASE: data/BaseOS
     MOUNT_REPOS_APPSTREAM: data/AppStream
@@ -18,21 +18,15 @@
         opts: ro,noauto
         state: present
 
-    - name: Create AppStream directory for copying into
+    - name: Create BaseOS and AppStream directory for copying into
       file:
-        path: /data/AppStream
+        path: /data
         state: directory
         mode: 0755
 
     - name: Copy RHEL8 ISO AppStream
       command: cp -rp /mnt/AppStream /data/AppStream
       tags: copy
-
-    - name: Create BaseOS directory for copying into
-      file:
-        path: /data/AppStream
-        state: directory
-        mode: 0755
 
     - name: Copy RHEL8 ISO BaseOS
       command: cp -rp /mnt/BaseOS /data/BaseOS
@@ -64,7 +58,7 @@
 
     - name: Install Composer & Cockpit packages
       yum:
-        name: cockpit, cockpit-dashboard, libvirt-dbus, cockpit-machines, cockpit-composer, composer-cli, lorax-composer, cockpit-pcp, cockpit-session-recording, subscription-manager-cockpit, cockpit-storaged, cockpit-system
+        name: cockpit, cockpit-dashboard, libvirt-dbus, cockpit-machines, cockpit-composer, composer-cli, lorax-composer, cockpit-pcp, cockpit-session-recording, subscription-manager-cockpit, cockpit-storaged, cockpit-system, policycoreutils-python-utils
         state: installed
 
     - name: Configure Firewall for Cockpit
@@ -122,24 +116,52 @@
     - name: Apply new SELinux file context to filesystem
       command: restorecon -irv /var/www/html/
 
-    - name: Import Microsoft Azure GPG key
-      rpm_key:
-        key: https://packages.microsoft.com/keys/microsoft.asc
+    - name: Add ansible user to host
+      user:
+        name: ansible
+        shell: /bin/bash
+        generate_ssh_key: yes 
+        ssh_key_bits: 2048
+        ssh_key_file: .ssh/id_rsa
+        password: $6$tn2vIE9oCq.fjQ4r$tUKqkzanIl55aViCecXtOQaqbnKazTni4lDbkOAoSUYt6gjDSC4.XfjfJlHlC7939m88IuyRhCJJ3N7l5SKzD1
         state: present
+    
+    - name: Ensure /etc/sudoers.d/users file exists
+      copy:
+        content: ""
+        dest: /etc/sudoers.d/ansible
+        force: no
+        group: sys 
+        owner: root
+        mode: 0555
+    
+    - name: Allow ansible user to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers.d/ansible
+        state: present
+        line: 'ansible   ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
 
-    - name: Create azure-cli yum repo
-      yum_repository:
-        name: azure-cli
-        description: Azure CLI
-        file: azure-cli
-        baseurl: https://packages.microsoft.com/yumrepos/azure-cli
-        gpgkey: https://packages.microsoft.com/keys/microsoft.asc
-        enabled: 1
-        gpgcheck: 1
-        state: present
- 
-    - name: Install azure-cli package
-      yum:
-        name: azure-cli
-        state: installed
+
+# Doesn't work with RHEL8, azure-cli needs to update their "python" dependency to include a version
+#   - name: Import Microsoft Azure GPG key
+#      rpm_key:
+#        key: https://packages.microsoft.com/keys/microsoft.asc
+#        state: present
+#
+#    - name: Create azure-cli yum repo
+#      yum_repository:
+#        name: azure-cli
+#        description: Azure CLI
+#        file: azure-cli
+#        baseurl: https://packages.microsoft.com/yumrepos/azure-cli
+#        gpgkey: https://packages.microsoft.com/keys/microsoft.asc
+#        enabled: 1
+#        gpgcheck: 1
+#        state: present
+# 
+#    - name: Install azure-cli package
+#      yum:
+#        name: azure-cli
+#        state: installed
 
