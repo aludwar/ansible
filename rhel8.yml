@@ -26,6 +26,7 @@
 
     - name: Copy RHEL8 ISO AppStream
       command: cp -rp /mnt/AppStream /data/AppStream
+      tags: copy
 
     - name: Create BaseOS directory for copying into
       file:
@@ -35,6 +36,7 @@
 
     - name: Copy RHEL8 ISO BaseOS
       command: cp -rp /mnt/BaseOS /data/BaseOS
+      tags: copy
 
     - name:  Configure Composer Source Content for RHEL 8 base
       yum_repository:
@@ -62,7 +64,7 @@
 
     - name: Install Composer & Cockpit packages
       yum:
-        name: cockpit, cockpit-dashboard, libvirt-dbus, cockpit-machines, cockpit-composer, composer-cli, lorax-composer
+        name: cockpit, cockpit-dashboard, libvirt-dbus, cockpit-machines, cockpit-composer, composer-cli, lorax-composer, cockpit-pcp, cockpit-session-recording, subscription-manager-cockpit, cockpit-storaged, cockpit-system
         state: installed
 
     - name: Configure Firewall for Cockpit
@@ -94,5 +96,50 @@
     - name: Install packages needed for Composer repos
       yum:
         name: yum-utils, createrepo, httpd
+        state: installed
+
+    - name: Configure Firewall for httpd served repos
+      firewalld:
+        service: "{{ item }}"
+        permanent: true
+        state: enabled
+        immediate: yes
+      with_items:
+        - 'http'
+
+    - name: Enable and Start httpd service
+      service:
+        name: httpd.service
+        state: started
+        enabled: yes
+
+    - name: Allow apache to modify files in /var/www/html/
+      sefcontext:
+        target: '/var/www/html/'
+        setype: httpd_sys_content_t
+        state: present
+
+    - name: Apply new SELinux file context to filesystem
+      command: restorecon -irv /var/www/html/
+
+    - name: Import Microsoft Azure GPG key
+      rpm_key:
+        key: https://packages.microsoft.com/keys/microsoft.asc
+        state: present
+
+    - name: Create azure-cli yum repo
+      yum_repository:
+        name: azure-cli
+        description: Azure CLI
+        file: azure-cli
+        baseurl: https://packages.microsoft.com/yumrepos/azure-cli
+        gpgkey: https://packages.microsoft.com/keys/microsoft.asc
+        enabled: 1
+        gpgcheck: 1
+        state: present
+ 
+    - name: Install azure-cli package
+      yum:
+        name: azure-cli
         state: installed
 
