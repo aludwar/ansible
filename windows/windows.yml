@@ -1,0 +1,17 @@
+---
+# This playbook uses the win_ping module to test connectivity to Windows hosts
+- name: Ping 
+  hosts: all 
+  vars:
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+    ansible_winrm_transport: basic
+    #ansible_winrm_transport: certificate
+    #ansible_winrm_cert_pem: cert.pem
+    #ansible_winrm_cert_key_pem: cert_key.pem
+    ansible_user: Administrator
+    ansible_password: Welcome00
+
+  tasks:
+  - name: ping
+    win_ping:

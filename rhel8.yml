@@ -15,8 +15,8 @@
         path: /mnt
         src: /dev/cdrom
         fstype: iso9660
-        opts: ro,noauto
-        state: present
+        opts: ro
+        state: mounted
 
     - name: Create BaseOS and AppStream directory for copying into
       file:
@@ -70,6 +70,11 @@
       with_items:
         - 'cockpit'
 
+    - name: Set SELinux in permissive mode
+      selinux:
+        policy: targeted
+        state: permissive
+
     - name: Enable and Start Composer service
       service:
         name: lorax-composer.service
@@ -81,11 +86,6 @@
         name: cockpit.socket
         state: started
         enabled: yes
-
-    - name: Set SELinux in permissive mode
-      selinux:
-        policy: targeted
-        state: permissive
 
     - name: Install packages needed for Composer repos
       yum:
@@ -134,17 +134,19 @@
         group: sys 
         owner: root
         mode: 0555
-    
-    - name: Allow ansible user to have passwordless sudo
-      lineinfile:
-        dest: /etc/sudoers.d/ansible
-        state: present
-        line: 'ansible   ALL=(ALL) NOPASSWD: ALL'
-        validate: 'visudo -cf %s'
 
-
-# Doesn't work with RHEL8, azure-cli needs to update their "python" dependency to include a version
-#   - name: Import Microsoft Azure GPG key
+# 
+# Azure cli isn't installable just yet, there's a dependency error in their RPM, "python" needs to specify a version, this
+# is likely due to the python changes in RHEL8
+#
+#    - name: Allow ansible user to have passwordless sudo
+#      lineinfile:
+#        dest: /etc/sudoers.d/ansible
+#        state: present
+#        line: 'ansible   ALL=(ALL) NOPASSWD: ALL'
+#        validate: 'visudo -cf %s'
+#
+#    - name: Import Microsoft Azure GPG key
 #      rpm_key:
 #        key: https://packages.microsoft.com/keys/microsoft.asc
 #        state: present
@@ -164,4 +166,9 @@
 #      yum:
 #        name: azure-cli
 #        state: installed
+#
+#   - name: Install pip under user ansible (as to not break system python)
+#      command: pip3 install --user ansible
 
+
+ 
