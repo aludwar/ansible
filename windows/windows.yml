@@ -6,12 +6,58 @@
     ansible_connection: winrm
     ansible_winrm_server_cert_validation: ignore
     ansible_winrm_transport: basic
-    #ansible_winrm_transport: certificate
-    #ansible_winrm_cert_pem: cert.pem
-    #ansible_winrm_cert_key_pem: cert_key.pem
-    ansible_user: Administrator
+    ansible_user: ansible
     ansible_password: Welcome00
 
   tasks:
-  - name: ping
+  - name: Test ping to host inventory
     win_ping:
+
+  # Reference this repo for porting Linux setup to Windows
+  # https://github.com/redhat-cop/ansible-middleware-playbooks
+  #
+#  - name: Install necessary JBOSS depdendencies
+#    win_chocolatey:
+#      name: 
+#      - java
+#      - unzip
+#      state: present
+#
+#  - name: Create JBOSS EAP group
+#    win_group:
+#      name: JBoss
+#      description: JBOSS EAP Group
+#      state: present
+#
+#  - name: Create JBOSS EAP user
+#    win_user: 
+#      name: jbosseap
+#      password: jbosseap
+#      state: present
+#      groups:
+#        - JBoss
+#
+#  - name: Grant JBOSS EAP user rights
+#    win_user_right:
+#      action:
+#      name:
+#      users:
+#  # https://docs.ansible.com/ansible/latest/modules/win_user_right_module.html#win-user-right-module
+#
+#
+#  - name: Unzip EAP archive
+#    win_unzip:
+#      src: C:\Users\Administrator\Downloads\
+#      dest: C:\Programs\EAP
+#
+#  - name: Install necessary depdendencies
+#    win_chocolatey:
+#      name: openjdk
+#      state: present
+#
+#  - name: Install a package that requires 'become'
+#    win_chocolatey:
+#      name: officepro2013
+#    become: yes
+#    become_user: Administrator
+#    become_method: runas
