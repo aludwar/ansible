@@ -41,7 +41,7 @@
         baseurl: file:///{{ MOUNT_REPOS_BASE }}
         gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
         enabled: 1
-        gpgcheck: 1
+        gpgcheck: 0
         state: present
 
     - name:  Configure Composer Source Content for RHEL 8 appstream
@@ -53,12 +53,12 @@
         baseurl: file:///{{ MOUNT_REPOS_APPSTREAM }}
         gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
         enabled: 1
-        gpgcheck: 1
+        gpgcheck: 0
         state: present
 
-    - name: Install Composer & Cockpit packages
+    - name: Install Composer & Cockpit packages, Container tools, VDO, sos
       yum:
-        name: cockpit, cockpit-dashboard, libvirt-dbus, cockpit-machines, cockpit-composer, composer-cli, lorax-composer, cockpit-pcp, cockpit-session-recording, subscription-manager-cockpit, cockpit-storaged, cockpit-system, policycoreutils-python-utils
+        name: cockpit, cockpit-dashboard, libvirt-dbus, cockpit-machines, cockpit-composer, composer-cli, lorax-composer, cockpit-pcp, cockpit-session-recording, subscription-manager-cockpit, cockpit-storaged, cockpit-system, policycoreutils-python-utils, tlog, buildah, podman, skopeo, tree, vdo, kmod-kvdo, python3-pyyaml, sos, pcp-zeroconf
         state: installed
 
     - name: Configure Firewall for Cockpit
@@ -135,6 +135,24 @@
         owner: root
         mode: 0555
 
+    - name: Add untrusted tlog user to host
+      user:
+        name: untrusted
+        shell: /usr/bin/tlog-rec-session
+        password: $6$WuZGf6olMVyQmia.$hy3tF2m0GdpgCoHWlRbK3TGQI/Zj2LMmiuXQXureVMrTgcu/JSlBmY.0aQfgynH.WLXzFWbnkoCHvj.faiCY00
+        state: present
+
+    - name: Remove subscription manager and yum repo warnings
+      lineinfile:
+        path: /etc/yum/pluginconf.d/subscription-manager.conf
+        regexp: '^enabled='
+        line: 'enabled=0'
+
+    - name: Remove subscription manager and yum repo warnings
+      lineinfile:
+        path: /etc/yum/pluginconf.d/product-id.conf
+        regexp: '^enabled='
+        line: 'enabled=0'
 # 
 # Azure cli isn't installable just yet, there's a dependency error in their RPM, "python" needs to specify a version, this
 # is likely due to the python changes in RHEL8
