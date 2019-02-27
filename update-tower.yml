@@ -1,6 +1,6 @@
 ---                                                                                                                                                                                                         
 # This playbook updates the Tower host.
-- hosts: all
+- hosts: tower.ludwar.ca
   vars: 
 
   tasks:
@@ -8,4 +8,3 @@
       yum:
         name: 'sos*'
         state: latest
-      delegate_to: localhost
