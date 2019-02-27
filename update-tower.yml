@@ -9,6 +9,6 @@
   tasks:
     - name: Apply the latest patches and errata to Ansible Tower server
       yum:
-        name: '*'
+        name: 'sos*'
         state: latest
       delegate_to: localhost
