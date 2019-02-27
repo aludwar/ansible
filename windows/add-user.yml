@@ -1,0 +1,30 @@
+---
+# This playbook uses the win_user module to add users to Windows hosts
+- name: Add users to Windows hosts
+  hosts: all 
+  vars:
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+    ansible_winrm_transport: basic
+    ansible_user: ansible
+    ansible_password: Welcome00
+    group: "{{ groupname }}"
+    group_desc: "{{ group_description }}"
+    user: " {{ username }}"
+    user_pass: "{{ user_password }}"
+    
+
+  tasks:
+  - name: Create JBOSS EAP group
+    win_group:
+      name: "{{ group }}"
+      description: "{{ group_desc }}"
+      state: present
+
+  - name: Create JBOSS EAP user
+    win_user: 
+      name: "{{ user }}"
+      password: "{{ user_pass }}"
+      state: present
+      groups:
+        - "{{ group }}"
