@@ -1,8 +1,6 @@
 ---                                                                                                                                                                                                         
 # This playbook updates the Tower host.
 - hosts: all
-  become_user: root
-  become_method: sudo
   become: yes  
   vars: 
 
