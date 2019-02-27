@@ -1,7 +1,6 @@
 ---                                                                                                                                                                                                         
 # This playbook updates the Tower host.
 - hosts: all
-  become: yes  
   vars: 
 
   tasks:
