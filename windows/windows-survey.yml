@@ -1,0 +1,30 @@
+---
+# This playbook uses the win_ping module to test connectivity to Windows hosts
+- name: Ping 
+  hosts: all 
+  vars:
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+    ansible_winrm_transport: basic
+    ansible_user: ansible
+    ansible_password: Welcome01
+    group: "{{ groupname }}"
+    group_desc: "{{ group_description }}"
+    user: " {{ username }}"
+    user_pass: "{{ user_password }}"
+
+  tasks:
+  - name: Create JBOSS EAP group
+    win_group:
+      name: "{{ group }}"
+      description: "{{ group_desc }}"
+      state: present
+
+  - name: Create JBOSS EAP user
+    win_user: 
+      name: "{{ user }}"
+      password: "{{ user_pass }}"
+      state: present
+      groups:
+        - "{{ group }}"
+
