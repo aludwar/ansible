@@ -7,7 +7,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_winrm_transport: basic
     ansible_user: ansible
-    ansible_password: Welcome00
+    ansible_password: Welcome01
 
   tasks:
   - name: Test ping to host inventory
