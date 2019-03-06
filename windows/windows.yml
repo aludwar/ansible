@@ -32,7 +32,7 @@
   - name: Create JBOSS EAP user
     win_user: 
       name: jbosseap
-      password: jbosseap
+      password: Welcome01!
       state: present
       groups:
         - JBoss
