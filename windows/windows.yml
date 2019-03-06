@@ -23,19 +23,19 @@
 #      - unzip
 #      state: present
 #
-#  - name: Create JBOSS EAP group
-#    win_group:
-#      name: JBoss
-#      description: JBOSS EAP Group
-#      state: present
-#
-#  - name: Create JBOSS EAP user
-#    win_user: 
-#      name: jbosseap
-#      password: jbosseap
-#      state: present
-#      groups:
-#        - JBoss
+  - name: Create JBOSS EAP group
+    win_group:
+      name: JBoss
+      description: JBOSS EAP Group
+      state: present
+
+  - name: Create JBOSS EAP user
+    win_user: 
+      name: jbosseap
+      password: jbosseap
+      state: present
+      groups:
+        - JBoss
 #
 #  - name: Grant JBOSS EAP user rights
 #    win_user_right:
