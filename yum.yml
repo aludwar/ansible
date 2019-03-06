@@ -1,0 +1,10 @@
+---
+# This playbook updates the Tower host.
+- hosts: ansible-tower.nscu.ca
+  vars: 
+
+  tasks:
+    - name: Apply the latest patches and errata to Ansible Tower server
+      yum:
+        name: '*'
+        state: latest
