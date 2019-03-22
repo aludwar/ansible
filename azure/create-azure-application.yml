@@ -23,6 +23,7 @@
     ansible_tower_version: "3.3.0-1"
     ansible_tower_archive: "{{ ansible_tower_basename }}-{{ ansible_tower_version }}.tar.gz"
     ansible_tower_release_url: "http://releases.ansible.com/ansible-tower/setup/{{ ansible_tower_archive }}"
+    ansible_tower_liense_file: "{{ lookup('file', '~/.azure/license.txt') }}"
     epel_repo_url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
     epel_repo_gpg_key_url: "/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
     epel_repofile_path: "/etc/yum.repos.d/epel.repo"
@@ -345,6 +346,28 @@
           yum: 
             name: python2-ansible-tower-cli
             state: installed
+
+        - name: Install Tower license file
+          command: tower-cli setting modify LICENSE "{{ ansible_tower_liense_file }}"
+
+        - name: Create tower organization
+          tower_organization:
+            name: "Red Hat"
+            description: "Azure demo inventory"
+            state: present
+
+        - name: Create tower inventory
+          tower_inventory:
+            name: "Red Hat Inventory"
+            description: "Azure inventory
+            organization: "Red Hat"
+            state: present
+
+        - name: Add app server to inventory
+          tower_host:
+            name: "{{ vm2_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}"
+            inventory: "Red Hat Inventory"
+            state: present
       delegate_to: tower 
 
       #    - name: Add App Server host to dynamic inventory
