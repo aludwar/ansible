@@ -18,12 +18,24 @@
     res_group_location: canadacentral
     storage_class: Standard_LRS
     virtual_network_cidr: 10.0.0.0/24
-    
+    ansible_tower_install: false
+    ansible_tower_basename: "ansible-tower-setup"
+    ansible_tower_version: "3.3.0-1"
+    ansible_tower_archive: "{{ ansible_tower_basename }}-{{ ansible_tower_version }}.tar.gz"
+    ansible_tower_release_url: "http://releases.ansible.com/ansible-tower/setup/{{ ansible_tower_archive }}"
+    epel_repo_url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
+    epel_repo_gpg_key_url: "/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+    epel_repofile_path: "/etc/yum.repos.d/epel.repo"
+
     # Azure credentials stored in BASH environment variables. Query them and store for use
     azure_client_id: "{{ lookup('env', 'AZURE_CLIENT_ID')}}"
     azure_tenant: "{{ lookup('env', 'AZURE_TENANT')}}"
     azure_subscription_id: "{{ lookup('env', 'AZURE_SUBSCRIPTION_ID')}}"
     azure_secret: "{{ lookup('env', 'AZURE_SECRET')}}"
+
+    # Fetch ubscription-manager credentials
+    subs_mgr_username: "{{ lookup('env', 'SMUSERNAME')}}"
+    subs_mgr_password: "{{ lookup('env', 'SMPASSWORD')}}"
 
     # Later on in this playbook, I use a RHEL7.6 golden image to create the two VMs:
     #
@@ -43,8 +55,7 @@
   pre_tasks:
     - name: Validate VM details are defined (user to verify if they are sane)
       assert:
-        that: { "{{ item }} is defined" }
-        fail_msg: "Please populate the VM variables that are at the beginning of the playbook."
+        { that: "{{ item }} is defined" }
       with_items:
         - default_username
         - default_password
@@ -54,15 +65,16 @@
         - vm2_ip_address
         - vm_size
 
-    - name: Do we have our AZURE Credentials
+    - name: Do we have our AZURE/Red Hat Credentials
       assert:
-        that: { "{{ item }} != ''" }
-        fail_msg: "Please define your Azure environment variables"
+        { that: "{{ item }} != ''" }
       with_items:
         - azure_client_id
         - azure_tenant
         - azure_subscription_id
         - azure_secret 
+        - subs_mgr_username
+        - subs_mgr_password
 
   tasks:
   #
@@ -206,12 +218,12 @@
         subscription_id: "{{ azure_subscription_id }}"
         secret: "{{ azure_secret }}"
         resource_group: "{{ res_group }}"
-        name: "centos{{ vm1_name }}"
+        name: "rhel{{ vm1_name }}"
         vm_size: "{{ vm_size }}"
         managed_disk_type: "{{ storage_class }}"
         storage_account: "sac{{ vm1_name }}"
         storage_container: "vms{{vm1_name}}"
-        storage_blob: "centos{{vm1_name}}.vhd"
+        storage_blob: "rhel{{vm1_name}}.vhd"
         admin_username: "{{ default_username }}"
         admin_password: "{{ default_password }}"
         network_interfaces: "nic01{{vm1_name}}"
@@ -230,12 +242,12 @@
         subscription_id: "{{ azure_subscription_id }}"
         secret: "{{ azure_secret }}"
         resource_group: "{{ res_group }}"
-        name: "centos{{ vm2_name }}"
+        name: "rhel{{ vm2_name }}"
         vm_size: "{{ vm_size }}"
         managed_disk_type: "{{ storage_class }}"
         storage_account: "sac{{ vm1_name }}"
         storage_container: "vms{{vm1_name}}"
-        storage_blob: "centos{{vm2_name}}.vhd"
+        storage_blob: "rhel{{vm2_name}}.vhd"
         admin_username: "{{ default_username }}"
         admin_password: "{{ default_password }}"
         network_interfaces: "nic01{{vm2_name}}"
@@ -272,6 +284,13 @@
             owner: root 
             group: root        
 
+        - name: Register host with subscription-manager
+          redhat_subscription:
+            state: present
+            username: "{{ subs_mgr_username }}"
+            password: "{{ subs_mgr_password }}"
+            auto_attach: true
+
         - name: Download Ansible Tower release
           get_url:
             dest: /var/tmp 
@@ -295,9 +314,36 @@
         - name: Install Ansible Tower
           command: "/var/tmp/{{ ansible_tower_basename }}-{{ ansible_tower_version }}/setup.sh"
           when: get_tower.changed or ansible_tower_install != false 
+
         - name: Install python components to Tower host
           yum: 
             name: [python2-pip, python2-winrm, python2-requests, libselinux-python]  
+            state: installed
+
+        - name: Check if EPEL repo is already configured.
+          stat: path={{ epel_repofile_path }}
+          register: epel_repofile_result
+        
+        - name: Install EPEL repo.
+          yum:
+            name: "{{ epel_repo_url }}"
+            state: present
+          register: result
+          until: 'result.rc == 0'
+          retries: 5
+          delay: 10
+          when: not epel_repofile_result.stat.exists
+        
+        - name: Import EPEL GPG key.
+          rpm_key:
+            key: "{{ epel_repo_gpg_key_url }}"
+            state: present
+          when: not epel_repofile_result.stat.exists
+          ignore_errors: "{{ ansible_check_mode }}"
+
+        - name: Install tower-cli utility
+          yum: 
+            name: python2-ansible-tower-cli
             state: installed
       delegate_to: tower 
 
