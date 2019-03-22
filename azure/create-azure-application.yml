@@ -359,7 +359,7 @@
         - name: Create tower inventory
           tower_inventory:
             name: "Red Hat Inventory"
-            description: "Azure inventory
+            description: "Azure inventory"
             organization: "Red Hat"
             state: present
 
