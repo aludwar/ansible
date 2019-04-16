@@ -1,0 +1,43 @@
+---
+# This playbook uses the win_ping module to test connectivity to Windows hosts
+- name: Ping 
+  hosts: all 
+  vars:
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+    ansible_winrm_transport: ntlm
+    ansible_user: ansible
+    ansible_password: Welcome00
+
+  tasks:
+  - name: Test ping to host inventory
+    win_ping:
+
+  - name: Create JBOSS EAP group
+    win_group:
+      name: JBoss
+      description: JBOSS EAP Group
+      state: present
+
+  - name: Create JBOSS EAP user
+    win_user: 
+      name: jbosseap
+      password: Welcome01!
+      state: present
+      groups:
+        - JBoss
+
+# Add user to Administrators group on the machine
+#
+# Steps to enable Group Policy changes needed for local user to logon:
+# 1) Open the Group Policy editor using gpmc.msc
+#
+# 2) Select your domain and expand Group Policy Objects then right click on "Default Domain Controller Policy"    and Click Edit
+#
+# 3) Under Computer Management, expand Policies and then select Windows Settings
+#
+# 4) Expand Security Settings and Select Local Policies and then click on User Rights Management
+#
+# 5) Right click on Allow Logon Locally and click on Properties
+#
+# 6) In the next screen you can Add the User of Group that you want
