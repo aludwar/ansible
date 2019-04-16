@@ -27,7 +27,16 @@
       groups:
         - JBoss
 
-# Add user to Administrators group on the machine
+# Easiest way is to add user to Administrators group on the machine.
+#
+# Troubleshooting steps/tips:
+#
+# https://docs.ansible.com/ansible/latest/user_guide/windows_setup.html#common-winrm-issues
+#
+#
+#
+# You can try modifying GPO to explicitly allow the "ansible" user, but I wasn't able to get this to work:
+#
 #
 # Steps to enable Group Policy changes needed for local user to logon:
 # 1) Open the Group Policy editor using gpmc.msc
@@ -41,3 +50,9 @@
 # 5) Right click on Allow Logon Locally and click on Properties
 #
 # 6) In the next screen you can Add the User of Group that you want
+#
+#
+# I had these allowed as well but didn't seem to make a difference:
+#
+# https://support.auvik.com/hc/en-us/articles/204424994-How-to-enable-WinRM-with-domain-controller-Group-Policy-for-WMI-monitoring
+
