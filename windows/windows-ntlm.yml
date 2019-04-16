@@ -32,7 +32,7 @@
 # Troubleshooting steps/tips:
 #
 # https://docs.ansible.com/ansible/latest/user_guide/windows_setup.html#common-winrm-issues
-#
+# https://access.redhat.com/articles/3967261
 #
 #
 # You can try modifying GPO to explicitly allow the "ansible" user, but I wasn't able to get this to work:
