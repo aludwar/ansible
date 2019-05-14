@@ -456,6 +456,19 @@
 
 
 
+    - name: Create DNS A records for the environment
+      azure_rm_dnsrecordset:
+        resource_group: res_group
+        zone_name: azure.ludwar.ca
+        state: present
+        relative_name: "{{ item.name }}"
+        record_type: "{{ item.type }}"
+        records: "{{ item.records }}"
+      with_items:
+        - { name: 'tower', type: 'A', records: [ { entry: "{{ vm1_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}" } ] }
+        - { name: 'workshop', type: 'A', records: [ { entry: "{{ vm3_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}" } ] }
+
+
     - name: Display created VM info
       debug:
         msg: "Azure Ansible Lab
