@@ -11,8 +11,10 @@
     default_password: "Password1!"
     vm1_name: "tower"
     vm2_name: "appserver"
+    vm3_name: "workshop"
     vm1_ip_address: "10.0.0.10"
     vm2_ip_address: "10.0.0.11"
+    vm3_ip_address: "10.0.0.12"
     vm_size: Standard_D2_v3
     res_group: "rgAnsibleLab"
     res_group_location: canadacentral
@@ -141,6 +143,16 @@
         allocation_method: Static
         name: "pbi02{{ vm2_name }}"
 
+    - name: Create third public ip for Workshop VM
+      azure_rm_publicipaddress:
+        client_id: "{{ azure_client_id }}"
+        tenant: "{{ azure_tenant }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        secret: "{{ azure_secret }}"
+        resource_group: "{{ res_group }}"
+        allocation_method: Static
+        name: "pbi03{{ vm3_name }}"
+
     - name: Create security group that allows incoming traffic on SSH/HTTP/HTTPS
       azure_rm_securitygroup:
         client_id: "{{ azure_client_id }}"
@@ -205,8 +217,26 @@
         subnet: "sn{{ vm1_name }}"
         ip_configurations:
         - name: "primary"
-          public_ip_name: "pbi02{{ vm1_name }}"
+          public_ip_name: "pbi02{{ vm2_name }}"
           private_ip_address: "{{ vm2_ip_address }}"
+          private_ip_allocation_method: "Static"
+          primary: "yes"
+        security_group: "sg{{ vm1_name }}"
+
+    - name: Create NIC for Workshop VM
+      azure_rm_networkinterface:
+        client_id: "{{ azure_client_id }}"
+        tenant: "{{ azure_tenant }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        secret: "{{ azure_secret }}"
+        resource_group: "{{ res_group }}"
+        name: "nic01{{ vm3_name }}"
+        virtual_network: "vn{{ vm1_name }}"
+        subnet: "sn{{ vm1_name }}"
+        ip_configurations:
+        - name: "primary"
+          public_ip_name: "pbi03{{ vm3_name }}"
+          private_ip_address: "{{ vm3_ip_address }}"
           private_ip_allocation_method: "Static"
           primary: "yes"
         security_group: "sg{{ vm1_name }}"
@@ -258,6 +288,30 @@
           - path: /home/{{ default_username }}/.ssh/authorized_keys
             key_data: "{{ lookup('file', 'insecure.pub') }}"       
       register: vm2_output
+
+    - name: Create Workshop VM
+      azure_rm_virtualmachine:
+        client_id: "{{ azure_client_id }}"
+        tenant: "{{ azure_tenant }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        secret: "{{ azure_secret }}"
+        resource_group: "{{ res_group }}"
+        name: "rhel{{ vm3_name }}"
+        vm_size: "{{ vm_size }}"
+        managed_disk_type: "{{ storage_class }}"
+        storage_account: "sac{{ vm1_name }}"
+        storage_container: "vms{{vm1_name}}"
+        storage_blob: "rhel{{vm3_name}}.vhd"
+        admin_username: "{{ default_username }}"
+        admin_password: "{{ default_password }}"
+        network_interfaces: "nic01{{vm3_name}}"
+        image:
+          name: rhel8-golden-image.vhd
+          resource_group: rgDefault
+        ssh_public_keys:
+          - path: /home/{{ default_username }}/.ssh/authorized_keys
+            key_data: "{{ lookup('file', 'insecure.pub') }}"       
+      register: vm3_output
 
     - name: Add Tower host to dynamic inventory
       add_host:
@@ -353,7 +407,6 @@
           when: get_tower.changed or ansible_tower_install != false
       delegate_to: tower 
 
-
     - name: Add Tower license to Tower VM
       uri:
         url: https://{{ vm1_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}/api/v2/config/
@@ -400,8 +453,15 @@
             tower_password: ansible
       delegate_to: tower 
 
+
+
+
     - name: Display created VM info
       debug:
         msg: "Azure Ansible Lab
 
-         Tower url is https://{{ vm1_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}/            Managed host is {{ vm2_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}/"
+         Tower url is https://{{ vm1_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}/
+
+         Managed host is {{ vm2_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}/
+
+         Workshop host is {{ vm3_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}/"
