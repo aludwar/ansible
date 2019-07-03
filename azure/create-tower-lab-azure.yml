@@ -30,19 +30,19 @@
     epel_repofile_path: "/etc/yum.repos.d/epel.repo"
 
     # Azure credentials stored in BASH environment variables. Query them and store for use
-    azure_client_id: "{{ lookup('env', 'AZURE_CLIENT_ID')}}"
-    azure_tenant: "{{ lookup('env', 'AZURE_TENANT')}}"
-    azure_subscription_id: "{{ lookup('env', 'AZURE_SUBSCRIPTION_ID')}}"
-    azure_secret: "{{ lookup('env', 'AZURE_SECRET')}}"
+    azure_client_id: "{{ lookup('env', 'AZURE_CLIENT_ID') }}"
+    azure_tenant: "{{ lookup('env', 'AZURE_TENANT') }}"
+    azure_subscription_id: "{{ lookup('env', 'AZURE_SUBSCRIPTION_ID') }}"
+    azure_secret: "{{ lookup('env', 'AZURE_SECRET') }}"
 
     # Fetch ubscription-manager credentials
-    subs_mgr_username: "{{ lookup('env', 'SMUSERNAME')}}"
-    subs_mgr_password: "{{ lookup('env', 'SMPASSWORD')}}"
+    subs_mgr_username: "{{ lookup('env', 'SMUSERNAME') }}"
+    subs_mgr_password: "{{ lookup('env', 'SMPASSWORD') }}"
 
     # Later on in this playbook, I use a RHEL7.6 golden image to create the two VMs:
     #
     #         image:
-    #          name: rhel-golden-image.vhd
+    #          name: rhel7-golden-image.vhd
     #          resource_group: rgDefault
     # 
     # How I prepared this image, and how I uploaded it to Azure for use is here:
@@ -74,7 +74,7 @@
         - azure_client_id
         - azure_tenant
         - azure_subscription_id
-        - azure_secret 
+        - azure_secret
         - subs_mgr_username
         - subs_mgr_password
 
@@ -83,7 +83,7 @@
   # Generic tasks to create and then start a VM
   #
 
-    - name: Create resource group 
+    - name: Create resource group
       azure_rm_resourcegroup:
         client_id: "{{ azure_client_id }}"
         tenant: "{{ azure_tenant }}"
@@ -110,7 +110,7 @@
         secret: "{{ azure_secret }}"
         resource_group: "{{ res_group }}"
         name: "vn{{ vm1_name }}"
-        address_prefixes: "{{virtual_network_cidr}}"
+        address_prefixes: "{{ virtual_network_cidr }}"
 
     - name: Add subnet
       azure_rm_subnet:
@@ -120,7 +120,7 @@
         secret: "{{ azure_secret }}"
         resource_group: "{{ res_group }}"
         name: "sn{{ vm1_name }}"
-        address_prefix: "{{virtual_network_cidr}}"
+        address_prefix: "{{ virtual_network_cidr }}"
         virtual_network: "vn{{ vm1_name }}"
 
     - name: Create first public ip for Tower VM
@@ -132,6 +132,9 @@
         resource_group: "{{ res_group }}"
         allocation_method: Static
         name: "pbi01{{ vm1_name }}"
+        #      async: 300
+        #      poll: 0
+        #      register: pbi01_results
 
     - name: Create second public ip for Managed Host VM
       azure_rm_publicipaddress:
@@ -142,6 +145,9 @@
         resource_group: "{{ res_group }}"
         allocation_method: Static
         name: "pbi02{{ vm2_name }}"
+        #      async: 300
+        #      poll: 0
+        #      register: pbi02_results
 
     - name: Create third public ip for Workshop VM
       azure_rm_publicipaddress:
@@ -152,6 +158,9 @@
         resource_group: "{{ res_group }}"
         allocation_method: Static
         name: "pbi03{{ vm3_name }}"
+        #      async: 300
+        #      poll: 0
+        #      register: pbi03_results
 
     - name: Create security group that allows incoming traffic on SSH/HTTP/HTTPS
       azure_rm_securitygroup:
@@ -160,7 +169,7 @@
         subscription_id: "{{ azure_subscription_id }}"
         secret: "{{ azure_secret }}"
         resource_group: "{{ res_group }}"
-        name: "sg{{vm1_name}}"
+        name: "sg{{ vm1_name }}"
         rules:
           - name: SSH
             protocol: Tcp
@@ -186,6 +195,9 @@
             access: Allow
             priority: 105
             direction: Inbound
+            #      async: 300
+            #      poll: 0
+            #      register: sg01_results
 
     - name: Create NIC for Tower VM
       azure_rm_networkinterface:
@@ -204,6 +216,9 @@
           private_ip_allocation_method: "Static"
           primary: "yes"
         security_group: "sg{{ vm1_name }}"
+        #      async: 300
+        #      poll: 0
+        #      register: nic01_results
 
     - name: Create NIC for Managed Node VM
       azure_rm_networkinterface:
@@ -222,6 +237,9 @@
           private_ip_allocation_method: "Static"
           primary: "yes"
         security_group: "sg{{ vm1_name }}"
+        #      async: 300
+        #      poll: 0
+        #      register: nic02_results
 
     - name: Create NIC for Workshop VM
       azure_rm_networkinterface:
@@ -240,6 +258,9 @@
           private_ip_allocation_method: "Static"
           primary: "yes"
         security_group: "sg{{ vm1_name }}"
+        #      async: 300
+        #      poll: 0
+        #      register: nic03_results
 
     - name: Create Tower VM
       azure_rm_virtualmachine:
@@ -252,18 +273,20 @@
         vm_size: "{{ vm_size }}"
         managed_disk_type: "{{ storage_class }}"
         storage_account: "sac{{ vm1_name }}"
-        storage_container: "vms{{vm1_name}}"
-        storage_blob: "rhel{{vm1_name}}.vhd"
+        storage_container: "vms{{ vm1_name }}"
+        storage_blob: "rhel{{ vm1_name }}.vhd"
         admin_username: "{{ default_username }}"
         admin_password: "{{ default_password }}"
-        network_interfaces: "nic01{{vm1_name}}"
+        network_interfaces: "nic01{{ vm1_name }}"
         image:
-          name: rhel-golden-image.vhd
+          name: rhel7-golden-image.vhd
           resource_group: rgDefault
         ssh_public_keys:
           - path: /home/{{ default_username }}/.ssh/authorized_keys
-            key_data: "{{ lookup('file', 'insecure.pub') }}"       
+            key_data: "{{ lookup('file', 'insecure.pub') }}"
       register: vm1_output
+#      async: 300
+#      poll: 0
 
     - name: Create Application Server VM
       azure_rm_virtualmachine:
@@ -276,18 +299,20 @@
         vm_size: "{{ vm_size }}"
         managed_disk_type: "{{ storage_class }}"
         storage_account: "sac{{ vm1_name }}"
-        storage_container: "vms{{vm1_name}}"
-        storage_blob: "rhel{{vm2_name}}.vhd"
+        storage_container: "vms{{ vm1_name }}"
+        storage_blob: "rhel{{ vm2_name }}.vhd"
         admin_username: "{{ default_username }}"
         admin_password: "{{ default_password }}"
-        network_interfaces: "nic01{{vm2_name}}"
+        network_interfaces: "nic01{{ vm2_name }}"
         image:
-          name: rhel-golden-image.vhd
+          name: rhel7-golden-image.vhd
           resource_group: rgDefault
         ssh_public_keys:
           - path: /home/{{ default_username }}/.ssh/authorized_keys
-            key_data: "{{ lookup('file', 'insecure.pub') }}"       
+            key_data: "{{ lookup('file', 'insecure.pub') }}"
       register: vm2_output
+            #      async: 300
+            #      poll: 0
 
     - name: Create Workshop VM
       azure_rm_virtualmachine:
@@ -300,43 +325,63 @@
         vm_size: "{{ vm_size }}"
         managed_disk_type: "{{ storage_class }}"
         storage_account: "sac{{ vm1_name }}"
-        storage_container: "vms{{vm1_name}}"
-        storage_blob: "rhel{{vm3_name}}.vhd"
+        storage_container: "vms{{ vm1_name }}"
+        storage_blob: "rhel{{ vm3_name }}.vhd"
         admin_username: "{{ default_username }}"
         admin_password: "{{ default_password }}"
-        network_interfaces: "nic01{{vm3_name}}"
+        network_interfaces: "nic01{{ vm3_name }}"
         image:
           name: rhel8-golden-image.vhd
           resource_group: rgDefault
         ssh_public_keys:
           - path: /home/{{ default_username }}/.ssh/authorized_keys
-            key_data: "{{ lookup('file', 'insecure.pub') }}"       
+            key_data: "{{ lookup('file', 'insecure.pub') }}"
       register: vm3_output
+            #      async: 300
+            #      poll: 0
 
-    - name: Add Tower host to dynamic inventory
+#    - name: Wait for VMs to be completed
+#      async_status:
+#        jid: "{{ item.ansible_job_id }}"
+#      register: job_result
+#      with_items:
+#        - "{{ pbi01_results }}"
+#        - "{{ pbi02_results }}"
+#        - "{{ pbi03_results }}"
+#        - "{{ nic01_results }}"
+#        - "{{ nic02_results }}"
+#        - "{{ nic03_results }}"
+#        - "{{ sg01_results }}"
+#        - "{{ vm1_output }}"
+#        - "{{ vm2_output }}"
+#        - "{{ vm3_output }}"
+#      until: job_result.finished
+#      retries: 60
+
+    - name: Add Tower VM to dynamic inventory
       add_host:
         name: "tower"
         ansible_host: "{{ vm1_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}"
         ansible_user: "{{ default_username }}"
-        ansible_ssh_pass: "{{ default_password }}"
-        ansible_sudo_pass: "{{ default_password }}"
+        ansible_password: "{{ default_password }}"
+        ansible_sudo_password: "{{ default_password }}"
         ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
 
     - name: Prepare the Tower host
       become: true
       block:
-        - name: Wait for host to become available via SSH 
+        - name: Wait for host to become available via SSH
           wait_for:
             port: 22
             timeout: 3000
 
         - name: Place sudoers entry for waagent
           template:
-            dest: "/etc/sudoers.d/waagent" 
-            src: "templates/waagent.j2" 
+            dest: "/etc/sudoers.d/waagent"
+            src: "templates/waagent.j2"
             mode: 0600
-            owner: root 
-            group: root        
+            owner: root
+            group: root
 
         - name: Register host with subscription-manager
           redhat_subscription:
@@ -359,7 +404,7 @@
         - name: Check if EPEL repo is already configured.
           stat: path={{ epel_repofile_path }}
           register: epel_repofile_result
-        
+
         - name: Install EPEL repo.
           yum:
             name: "{{ epel_repo_url }}"
@@ -369,7 +414,7 @@
           retries: 5
           delay: 10
           when: not epel_repofile_result.stat.exists
-        
+
         - name: Import EPEL GPG key.
           rpm_key:
             key: "{{ epel_repo_gpg_key_url }}"
@@ -378,34 +423,36 @@
           ignore_errors: "{{ ansible_check_mode }}"
 
         - name: Install python components to Tower host
-          yum: 
-            name: [python2-pip, python2-winrm, python2-requests, libselinux-python, ansible, python2-ansible-tower-cli]  
+          yum:
+            name: [python2-pip, python2-winrm, python2-requests, libselinux-python, ansible, python2-ansible-tower-cli]
             state: installed
 
         - name: Download Ansible Tower release
           get_url:
-            dest: /var/tmp 
-            url: "{{ ansible_tower_release_url }}" 
+            dest: /var/tmp
+            url: "{{ ansible_tower_release_url }}"
           register: get_tower
 
         - name: Extract Ansible Tower release archive
           unarchive:
-            dest: /var/tmp/ 
-            src: "/var/tmp/{{ ansible_tower_archive }}" 
-            remote_src: yes 
+            dest: /var/tmp/
+            src: "/var/tmp/{{ ansible_tower_archive }}"
+            remote_src: yes
           when: get_tower.changed
 
         - name: Change default Ansible Tower admin password
           replace:
-            path: "/var/tmp/{{ ansible_tower_basename }}-{{ ansible_tower_version }}/inventory" 
-            regexp: "^(.*)_password=''" 
+            path: "/var/tmp/{{ ansible_tower_basename }}-{{ ansible_tower_version }}/inventory"
+            regexp: "^(.*)_password=''"
             replace: "\\1_password='ansible'"
           when: get_tower.changed
 
         - name: Install Ansible Tower
           command: "/var/tmp/{{ ansible_tower_basename }}-{{ ansible_tower_version }}/setup.sh"
+          async: 1200
+          poll: 30
           when: get_tower.changed or ansible_tower_install != false
-      delegate_to: tower 
+      delegate_to: tower
 
     - name: Add Tower license to Tower VM
       uri:
@@ -421,7 +468,7 @@
         body: '{{ lookup("file", "/home/aludwar/.azure/license.txt") }}'
         body_format: json
 
-    - name: Prepare the Tower host
+    - name: Populate Ansible Tower contents
       become: true
       block:
         - name: Create tower organization
@@ -451,14 +498,11 @@
             tower_host: https://{{ vm1_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}
             tower_username: admin
             tower_password: ansible
-      delegate_to: tower 
-
-
-
+      delegate_to: tower
 
     - name: Create DNS A records for the environment
       azure_rm_dnsrecordset:
-        resource_group: res_group
+        resource_group: rgDefault
         zone_name: azure.ludwar.ca
         state: present
         relative_name: "{{ item.name }}"
