@@ -91,7 +91,38 @@
         enabled: yes
 
     - name: Install browser SSH client 
-      command: pip3 install butterfly
+      command: pip3 install butterfly[systemd]
 
-    - name: Start browser SSH service
-      command: butterfly.server.py --host=0.0.0.0 --port=8080 --unsecure
+    - name: Setup browser SSH client to run in systemd
+      template:
+        src: templates/butterfly.service
+        dest: "/etc/systemd/system/butterfly{{ item }}.service"
+        owner: root
+        group: root
+        mode: 0644
+      loop: "{{ range(8001, 8051, 1) | list }}"
+
+    - name: Setup browser SSH client to run in systemd
+      template:
+        src: templates/butterfly.socket
+        dest: "/etc/systemd/system/butterfly{{ item }}.socket"
+        owner: root
+        group: root
+        mode: 0644
+      loop: "{{ range(8001, 8051, 1) | list }}"
+
+    - name: Change default listen port
+      replace:
+        path: "/etc/systemd/system/butterfly{{ item }}.socket"
+        regexp: "^ListenStream=57575"
+        replace: "ListenStream={{ item }}"
+      loop: "{{ range(8001, 8051, 1) | list }}"
+
+    - name: Reload systemd to catch new service file
+      command: systemctl daemon-reload
+
+    - name: Start browser SSH client
+      service:
+        name: "butterfly{{ item }}.service"
+        state: started
+      loop: "{{ range(8001, 8051, 1) | list }}"
