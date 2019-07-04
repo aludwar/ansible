@@ -32,17 +32,27 @@
         packages:
           - nodejs
           - git
+          - python3
 
-    - name: Create etherpad service group
+    - name: Create service groups
       group:
-        name: etherpad
+        name: "{{ item }}"
         state: present
+      with_items:
+        - etherpad
+        - butterfly
+        - ansible
 
-    - name: Create etherpad service user
+    - name: Create service users
       user:
-        name: etherpad
+        name: "{{ item }}"
         group: etherpad
         shell: /bin/bash
+        password: $6$ansible$KAJ/MBQw3q.OCmVVCZ7B3aAozUZYM6INJWnU6p95g95K9ROqDCJ8nEFXw5Wrn4WHXYvHfi/VUkJdZZ0HpKzhq0
+      with_items:
+        - etherpad
+        - butterfly
+        - ansible
 
     - name: Pull Etherpad code from git
       git:
@@ -79,3 +89,9 @@
         name: etherpad.service
         state: started
         enabled: yes
+
+    - name: Install browser SSH client 
+      command: pip3 install butterfly
+
+    - name: Start browser SSH service
+      command: butterfly.server.py --host=0.0.0.0 --port=8080 --unsecure
