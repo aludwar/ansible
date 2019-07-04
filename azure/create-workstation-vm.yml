@@ -1,0 +1,81 @@
+---
+- name: Deploy workstation VM for Ansible Workshop
+  hosts: all
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/libexec/platform-python
+    # Fetch ubscription-manager credentials
+    subs_mgr_username: "{{ lookup('env', 'SMUSERNAME') }}"
+    subs_mgr_password: "{{ lookup('env', 'SMPASSWORD') }}"
+
+  tasks:
+    - name: Register host with subscription-manager
+      redhat_subscription:
+        state: present
+        username: "{{ subs_mgr_username }}"
+        password: "{{ subs_mgr_password }}"
+        auto_attach: true
+
+    - name: Enable Red Hat yum repositories
+      rhsm_repository:
+        name: "{{ item }}"
+        state: enabled
+      with_items:
+        - rhel-8-for-x86_64-appstream-rpms
+        - rhel-8-for-x86_64-baseos-rpms
+
+    - name: Install node.js framework, git
+      yum:
+        name: "{{ packages }}"
+        state: latest
+      vars:
+        packages:
+          - nodejs
+          - git
+
+    - name: Create etherpad service group
+      group:
+        name: etherpad
+        state: present
+
+    - name: Create etherpad service user
+      user:
+        name: etherpad
+        group: etherpad
+        shell: /bin/bash
+
+    - name: Pull Etherpad code from git
+      git:
+        repo: git://github.com/ether/etherpad-lite.git
+        dest: /home/etherpad/etherpad-lite/
+        version: master
+
+    - name: Make Etherpad service configurations
+      template:
+        src: templates/settings.json
+        dest: /home/etherpad/etherpad-lite/settings.json
+        owner: etherpad
+        group: etherpad
+        mode: 0644
+
+    - name: Build Etherpad systemd service file
+      template:
+        src: templates/etherpad.service
+        dest: /etc/systemd/system/etherpad.service
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Set SELinux to Permissive (sigh)
+      selinux:
+        policy: targeted
+        state: permissive
+
+    - name: Reload systemd to catch new service file
+      command: systemctl daemon-reload
+
+    - name: Enable and start Etherpad service
+      service:
+        name: etherpad.service
+        state: started
+        enabled: yes
