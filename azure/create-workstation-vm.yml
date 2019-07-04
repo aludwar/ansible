@@ -111,11 +111,18 @@
         mode: 0644
       loop: "{{ range(8001, 8051, 1) | list }}"
 
-    - name: Change default listen port
+    - name: Change default socket listen port
       replace:
         path: "/etc/systemd/system/butterfly{{ item }}.socket"
         regexp: "^ListenStream=57575"
         replace: "ListenStream={{ item }}"
+      loop: "{{ range(8001, 8051, 1) | list }}"
+
+    - name: Change default service listen port
+      replace:
+        path: "/etc/systemd/system/butterfly{{ item }}.service"
+        regexp: "--port=57575"
+        replace: "--port={{ item }}"
       loop: "{{ range(8001, 8051, 1) | list }}"
 
     - name: Reload systemd to catch new service file
