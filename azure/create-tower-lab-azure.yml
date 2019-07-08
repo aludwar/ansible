@@ -367,6 +367,15 @@
         ansible_sudo_password: "{{ default_password }}"
         ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
 
+    - name: Add Workshop VM to dynamic inventory
+      add_host:
+        name: "workshop"
+        ansible_host: "{{ vm3_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}"
+        ansible_user: "{{ default_username }}"
+        ansible_password: "{{ default_password }}"
+        ansible_sudo_password: "{{ default_password }}"
+        ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+
     - name: Prepare the Tower host
       become: true
       block:
@@ -512,7 +521,6 @@
         - { name: 'tower', type: 'A', records: [ { entry: "{{ vm1_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}" } ] }
         - { name: 'workshop', type: 'A', records: [ { entry: "{{ vm3_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}" } ] }
 
-
     - name: Display created VM info
       debug:
         msg: "Azure Ansible Lab
@@ -522,3 +530,8 @@
          Managed host is {{ vm2_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}/
 
          Workshop host is {{ vm3_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}/"
+
+# This isn't working quite yet
+#
+#- name: Deploy services on workshop VM
+#  import_playbook: create-workstation-vm.yml
