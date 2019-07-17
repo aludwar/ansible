@@ -1,0 +1,12 @@
+- name: Enable Ansible Tower CLI Repo
+  template:
+    src: templates/tower-cli.repo.j2
+    dest: /etc/yum.repos.d/tower-cli.repo
+    owner: root
+    group: root
+
+- name: Install Ansible Tower CLI packages
+  yum:
+    name: ansible-tower-cli
+    state: latest
+

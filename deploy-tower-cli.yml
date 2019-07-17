@@ -1,0 +1,11 @@
+---                                                                                                                                                                                                         
+# This playbook deploys the tower-cli utility to a Tower server
+
+- name: Deploy tower-cli to Ansible Tower server
+  hosts: all
+  become_user: root
+  become_method: sudo
+  become: yes
+
+  roles:
+    - tower-cli-setup

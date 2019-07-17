@@ -1,0 +1,236 @@
+---
+- name: Create Linux Application VM in Azure
+  # Host is local as the Azure module runs from the Ansible control node.
+  hosts: localhost
+  connection: local
+  # No need to gather facts
+  gather_facts: false
+  vars:
+    # Variables to create the Tower VM and App Server VM
+    default_username: "ansible"
+    default_password: "Password1!"
+    vm1_name: "app1"
+    vm1_ip_address: "10.0.0.20"
+    vm_size: Standard_D2_v3
+    res_group: "rgTowerCICD"
+    res_group_location: canadacentral
+    storage_class: Standard_LRS
+    virtual_network_cidr: 10.0.0.0/24
+
+    # Azure credentials stored in BASH environment variables. Query them and store for use
+    azure_client_id: "{{ lookup('env', 'AZURE_CLIENT_ID') }}"
+    azure_tenant: "{{ lookup('env', 'AZURE_TENANT') }}"
+    azure_subscription_id: "{{ lookup('env', 'AZURE_SUBSCRIPTION_ID') }}"
+    azure_secret: "{{ lookup('env', 'AZURE_SECRET') }}"
+
+    # Fetch ubscription-manager credentials
+    subs_mgr_username: "{{ lookup('env', 'SMUSERNAME') }}"
+    subs_mgr_password: "{{ lookup('env', 'SMPASSWORD') }}"
+
+  #
+  # You can do pre-tasks that will execute before roles or tasks, post tasks are also available.
+  #
+
+  pre_tasks:
+    - name: Validate VM details are defined (user to verify if they are sane)
+      assert:
+        { that: "{{ item }} is defined" }
+      with_items:
+        - default_username
+        - default_password
+        - vm1_name
+        - vm2_name
+        - vm1_ip_address
+        - vm2_ip_address
+        - vm_size
+
+    - name: Do we have our AZURE/Red Hat Credentials
+      assert:
+        { that: "{{ item }} != ''" }
+      with_items:
+        - azure_client_id
+        - azure_tenant
+        - azure_subscription_id
+        - azure_secret
+        - subs_mgr_username
+        - subs_mgr_password
+
+  tasks:
+  #
+  # Generic tasks to create and then start a VM
+  #
+
+    - name: Create resource group
+      azure_rm_resourcegroup:
+        client_id: "{{ azure_client_id }}"
+        tenant: "{{ azure_tenant }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        secret: "{{ azure_secret }}"
+        name: "{{ res_group }}"
+        location: "{{ res_group_location }}"
+
+    - name: Create storage account
+      azure_rm_storageaccount:
+        client_id: "{{ azure_client_id }}"
+        tenant: "{{ azure_tenant }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        secret: "{{ azure_secret }}"
+        resource_group: "{{ res_group }}"
+        name: "sac{{ vm1_name }}"
+        account_type: "{{ storage_class }}"
+
+    - name: Create virtual network
+      azure_rm_virtualnetwork:
+        client_id: "{{ azure_client_id }}"
+        tenant: "{{ azure_tenant }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        secret: "{{ azure_secret }}"
+        resource_group: "{{ res_group }}"
+        name: "vn{{ vm1_name }}"
+        address_prefixes: "{{ virtual_network_cidr }}"
+
+    - name: Add subnet
+      azure_rm_subnet:
+        client_id: "{{ azure_client_id }}"
+        tenant: "{{ azure_tenant }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        secret: "{{ azure_secret }}"
+        resource_group: "{{ res_group }}"
+        name: "sn{{ vm1_name }}"
+        address_prefix: "{{ virtual_network_cidr }}"
+        virtual_network: "vn{{ vm1_name }}"
+
+    - name: Create first public ip for Application VM
+      azure_rm_publicipaddress:
+        client_id: "{{ azure_client_id }}"
+        tenant: "{{ azure_tenant }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        secret: "{{ azure_secret }}"
+        resource_group: "{{ res_group }}"
+        allocation_method: Static
+        name: "pbi01{{ vm1_name }}"
+
+    - name: Create security group that allows incoming traffic on SSH/HTTP/HTTPS
+      azure_rm_securitygroup:
+        client_id: "{{ azure_client_id }}"
+        tenant: "{{ azure_tenant }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        secret: "{{ azure_secret }}"
+        resource_group: "{{ res_group }}"
+        name: "sg{{ vm1_name }}"
+        rules:
+          - name: SSH
+            protocol: Tcp
+            destination_port_range: 22
+            access: Allow
+            priority: 101
+            direction: Inbound
+          - name: HTTP
+            protocol: Tcp
+            destination_port_range: 80
+            access: Allow
+            priority: 103
+            direction: Inbound
+          - name: HTTPS
+            protocol: Tcp
+            destination_port_range: 443
+            access: Allow
+            priority: 104
+            direction: Inbound
+          - name: Custom
+            protocol: Tcp
+            destination_port_range: 8080
+            access: Allow
+            priority: 105
+            direction: Inbound
+
+    - name: Create NIC for Application VM
+      azure_rm_networkinterface:
+        client_id: "{{ azure_client_id }}"
+        tenant: "{{ azure_tenant }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        secret: "{{ azure_secret }}"
+        resource_group: "{{ res_group }}"
+        name: "nic01{{ vm1_name }}"
+        virtual_network: "vn{{ vm1_name }}"
+        subnet: "sn{{ vm1_name }}"
+        ip_configurations:
+        - name: "primary"
+          public_ip_name: "pbi01{{ vm1_name }}"
+          private_ip_address: "{{ vm1_ip_address }}"
+          private_ip_allocation_method: "Static"
+          primary: "yes"
+        security_group: "sg{{ vm1_name }}"
+
+    - name: Create Application VM
+      azure_rm_virtualmachine:
+        client_id: "{{ azure_client_id }}"
+        tenant: "{{ azure_tenant }}"
+        subscription_id: "{{ azure_subscription_id }}"
+        secret: "{{ azure_secret }}"
+        resource_group: "{{ res_group }}"
+        name: "rhel{{ vm1_name }}"
+        vm_size: "{{ vm_size }}"
+        managed_disk_type: "{{ storage_class }}"
+        storage_account: "sac{{ vm1_name }}"
+        storage_container: "vms{{ vm1_name }}"
+        storage_blob: "rhel{{ vm1_name }}.vhd"
+        admin_username: "{{ default_username }}"
+        admin_password: "{{ default_password }}"
+        network_interfaces: "nic01{{ vm1_name }}"
+        image:
+          name: rhel8-golden-image.vhd
+          resource_group: rgDefault
+        ssh_public_keys:
+          - path: /home/{{ default_username }}/.ssh/authorized_keys
+            key_data: "{{ lookup('file', 'insecure.pub') }}"
+      register: vm1_output
+
+    - name: Add Application VM to dynamic inventory
+      add_host:
+        name: "app1"
+        ansible_host: "{{ vm1_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}"
+        ansible_user: "{{ default_username }}"
+        ansible_password: "{{ default_password }}"
+        ansible_sudo_password: "{{ default_password }}"
+        ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+
+    - name: Prepare the Application VM
+      become: true
+      block:
+        - name: Wait for host to become available via SSH
+          wait_for:
+            port: 22
+            timeout: 3000
+
+        - name: Place sudoers entry for waagent
+          template:
+            dest: "/etc/sudoers.d/waagent"
+            src: "templates/waagent.j2"
+            mode: 0600
+            owner: root
+            group: root
+
+        - name: Register host with subscription-manager
+          redhat_subscription:
+            state: present
+            username: "{{ subs_mgr_username }}"
+            password: "{{ subs_mgr_password }}"
+            auto_attach: true
+
+        - name: Enable Red Hat yum repositories
+          rhsm_repository:
+            name: "{{ item }}"
+            state: enabled
+          with_items:
+            - rhel-7-server-rpms
+            - rhel-7-server-optional-rpms
+            - rhel-7-server-extras-rpms
+            - rhel-7-server-rh-common-rpms
+            - rhel-7-server-ansible-2.7-rpms
+
+        - name: Install python components to Tower host
+          yum:
+            name: [python3-pip, python3-requests, libselinux-python, ansible, python3-ansible-tower-cli]
+            state: installed
+      delegate_to: app1
