@@ -39,9 +39,7 @@
         - default_username
         - default_password
         - vm1_name
-        - vm2_name
         - vm1_ip_address
-        - vm2_ip_address
         - vm_size
 
     - name: Do we have our AZURE/Red Hat Credentials
@@ -188,7 +186,7 @@
 
     - name: Add Application VM to dynamic inventory
       add_host:
-        name: "app1"
+        name: "rhelapp1"
         ansible_host: "{{ vm1_output.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.publicIPAddress.properties.ipAddress }}"
         ansible_user: "{{ default_username }}"
         ansible_password: "{{ default_password }}"
@@ -233,4 +231,4 @@
           yum:
             name: [python3-pip, python3-requests, libselinux-python, ansible, python3-ansible-tower-cli]
             state: installed
-      delegate_to: app1
+      delegate_to: rhelapp1
