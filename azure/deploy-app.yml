@@ -1,17 +1,41 @@
 ---                                                                                                                                                                                                         
 # This playbook deploys a basic application to a VM
-- hosts: app1
-  become_user: root
-  become_method: sudo
+- hosts: all
   become: yes  
+  vars:
+    # Fetch ubscription-manager credentials
+    subs_mgr_username: "{{ lookup('env', 'SMUSERNAME') }}"
+    subs_mgr_password: "{{ lookup('env', 'SMPASSWORD') }}"
+    ansible_sudo_password: Password1!
+    ip_address: "{{ ansible_default_ipv4.address }}"
+
+  pre_tasks:
+    - name: Do we have our Red Hat Credentials
+      assert:
+        { that: "{{ item }} != ''" }
+      with_items:
+        - subs_mgr_username
+        - subs_mgr_password
 
   tasks:
-    - name: Install web server
-      yum: state=present name={{ item }}
-      tags: software
+    - name: Register host with subscription-manager
+      redhat_subscription:
+        state: present
+        username: "{{ subs_mgr_username }}"
+        password: "{{ subs_mgr_password }}"
+        auto_attach: true
+
+    - name: Install git, firewalld, python3
       when: ansible_distribution == 'RedHat' and ansible_distribution_major_version|int == 8
-      with_items:
-      - httpd
+      yum:
+        name: "{{ packages }}"
+        state: latest
+      vars:
+        packages:
+          - git
+          - firewalld
+          - python3
+          - httpd
 
     - name: Deploy web application
       git:
@@ -19,13 +43,14 @@
        dest: /var/www/html
        #version: release-0.22
     
-    - name: Start/enable web server
+    - name: Start/enable web server, firewalld
       systemd:
        name: "{{ item }}"
        state: started
        enabled: yes
       with_items:
        - 'httpd'
+       - 'firewalld'
       tags: software
       when: ansible_distribution == 'RedHat' and ansible_distribution_major_version|int == 8
 
@@ -41,4 +66,4 @@
 
     - name: Run unit test on application
       uri:
-        url: http://{{ ansible_all_ipv4_addresses }}/index.html
+        url: http://{{ ip_address }}/index.html
