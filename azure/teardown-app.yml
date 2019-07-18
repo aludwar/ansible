@@ -1,5 +1,5 @@
 ---
-- name: Delete AnsibleLab Azure Resources
+- name: Delete CI/CD test infrastructure
   hosts: localhost
   gather_facts: false
   connection: local
