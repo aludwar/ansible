@@ -4,8 +4,8 @@
   become: yes  
   vars:
     # Fetch ubscription-manager credentials
-    subs_mgr_username: "{{ lookup('env', 'SMUSERNAME') }}"
-    subs_mgr_password: "{{ lookup('env', 'SMPASSWORD') }}"
+    subs_mgr_username: "{{ rhnusername }}"
+    subs_mgr_password: "{{ rhnpassword }}"
     ansible_sudo_password: Password1!
     ip_address: "{{ ansible_default_ipv4.address }}"
 

@@ -23,14 +23,6 @@
     azure_subscription_id: "{{ lookup('env', 'AZURE_SUBSCRIPTION_ID') }}"
     azure_secret: "{{ lookup('env', 'AZURE_SECRET') }}"
 
-    # Fetch ubscription-manager credentials
-    subs_mgr_username: "{{ lookup('env', 'SMUSERNAME') }}"
-    subs_mgr_password: "{{ lookup('env', 'SMPASSWORD') }}"
-
-  #
-  # You can do pre-tasks that will execute before roles or tasks, post tasks are also available.
-  #
-
   pre_tasks:
     - name: Validate VM details are defined (user to verify if they are sane)
       assert:
@@ -42,7 +34,7 @@
         - vm1_ip_address
         - vm_size
 
-    - name: Do we have our AZURE/Red Hat Credentials
+    - name: Do we have our AZURE Credentials
       assert:
         { that: "{{ item }} != ''" }
       with_items:
@@ -50,14 +42,8 @@
         - azure_tenant
         - azure_subscription_id
         - azure_secret
-        - subs_mgr_username
-        - subs_mgr_password
 
   tasks:
-  #
-  # Generic tasks to create and then start a VM
-  #
-
     - name: Create resource group
       azure_rm_resourcegroup:
         client_id: "{{ azure_client_id }}"
