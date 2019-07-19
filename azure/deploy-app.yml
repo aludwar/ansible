@@ -7,6 +7,7 @@
     subs_mgr_username: "{{ rhnusername }}"
     subs_mgr_password: "{{ rhnpassword }}"
     ansible_sudo_password: Password1!
+    ansible_python_interpreter: /usr/libexec/platform-python
     ip_address: "{{ ansible_default_ipv4.address }}"
 
   pre_tasks:
