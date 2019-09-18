@@ -163,7 +163,7 @@
         admin_password: "{{ default_password }}"
         network_interfaces: "nic01{{ vm1_name }}"
         image:
-          name: rhel8-golden-image.vhd
+          name: rhel8-golden-image-cdn.vhd
           resource_group: rgDefault
         ssh_public_keys:
           - path: /home/{{ default_username }}/.ssh/authorized_keys
