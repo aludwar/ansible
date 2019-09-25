@@ -1,5 +1,5 @@
 ---
 - name: Run PCI-DSS Compliance Scan
-  hosts: test.dev.ludwar.ca
+  hosts: web1.dev.ludwar.ca
   roles:
     - { role: redhatofficial.rhel7_pci_dss }
