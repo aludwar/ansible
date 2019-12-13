@@ -1,0 +1,26 @@
+---
+# This playbook is a skeleton framework to update
+# the registration of Satellite hosts from Satellite
+# back to the Customer Portal
+- hosts: rhelclients
+  vars: 
+
+  tasks:
+    - name: Ensure Satellite client is unregistered from Satellite
+      redhat_subscription:
+        state: absent
+        username: some_satellite_admin_user
+        password: some_satellite_admin_password
+
+# Basically doing these steps here: https://access.redhat.com/solutions/2301701
+    - name: Ensure Satellite RPM is removed
+      command:
+        command: /usr/bin/rpm -e katello-ca-consumer-example.satellite.com-1.0-1.noarch
+
+# Using this as an example: https://docs.ansible.com/ansible/latest/modules/redhat_subscription_module.html#examples
+    - name: Ensure RHEL client is registered to Customer Portal
+      redhat_subscription:
+        state: present
+        username: some_customerportal_admin_user
+        password: some_customerportal_admin_password
+        pool_ids: 0123456789abcdef0123456789abcdef
