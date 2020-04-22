@@ -1,8 +1,8 @@
 ---
-# This playbook uses the command module to query a Satellite client, and tell us what Satellite server it's currently registered to.
+# This playbook uses the shell module to query a Satellite client, and tell us what Satellite server it's currently registered to.
 - name: Show current registered Satellite server
   hosts: all 
 
   tasks:
   - name: Ask Satellite clients what Satellite server they're registered to
-    command: /usr/sbin/subscription-manager config --list | /usr/bin/egrep 'hostname' | /usr/bin/egrep -v 'proxy'
+    shell: /usr/sbin/subscription-manager config --list | /usr/bin/egrep 'hostname' | /usr/bin/egrep -v 'proxy'
