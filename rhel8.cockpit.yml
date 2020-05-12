@@ -37,7 +37,7 @@
 
     - name: Install Composer & Cockpit packages, Container tools, VDO, sos, insights-client, active directory client components
       yum:
-        name: cockpit, cockpit-dashboard, libvirt-dbus, cockpit-machines, cockpit-composer, composer-cli, lorax-composer, cockpit-pcp, cockpit-session-recording, subscription-manager-cockpit, cockpit-storaged, cockpit-system, policycoreutils-python-utils, tlog, buildah, podman, skopeo, tree, vdo, kmod-kvdo, python3-pyyaml, sos, pcp-zeroconf, firewalld, insights-client, samba, samba-client, samba-winbind, samba-winbind-clients, realmd, sssd, oddjob, oddjob-mkhomedir, samba-common-tools, krb5-workstation, authselect-compat
+        name: cockpit, cockpit-dashboard, libvirt-dbus, cockpit-machines, cockpit-composer, composer-cli, lorax-composer, cockpit-pcp, cockpit-session-recording, subscription-manager-cockpit, cockpit-storaged, cockpit-system, policycoreutils-python-utils, tlog, buildah, podman, skopeo, tree, vdo, kmod-kvdo, python3-pyyaml, sos, pcp-zeroconf, firewalld, insights-client, samba, samba-client, samba-winbind, samba-winbind-clients, realmd, sssd, oddjob, oddjob-mkhomedir, samba-common-tools, krb5-workstation, authselect-compat, cockpit-podman
         state: installed
 
     - name: Enable and Start firewalld service
