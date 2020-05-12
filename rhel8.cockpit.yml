@@ -1,0 +1,140 @@
+---
+- name: Configure RHEL8 host for Cockpit demo
+  hosts: all
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/libexec/platform-python
+    # Fetch ubscription-manager credentials
+    subs_mgr_username: "{{ lookup('env', 'SMUSERNAME') }}"
+    subs_mgr_password: "{{ lookup('env', 'SMPASSWORD') }}"
+    # To run this playbook from a linux workstation:
+    # ansible-playbook -i web2.dev.ludwar.ca, -u root rhel8.cockpit.yml
+
+  roles:
+    - role: redhatinsights.insights-client
+      vars:
+        insights_display_name: web2.dev.ludwar.ca
+        ansible_python_interpreter: /usr/libexec/platform-python
+        redhat_portal_username: "{{ subs_mgr_username }}"
+        redhat_portal_password: "{{ subs_mgr_password }}"
+      when: ansible_os_family == 'RedHat'
+
+  tasks:
+    - name: Register host with subscription-manager
+      redhat_subscription:
+        state: present
+        username: "{{ subs_mgr_username }}"
+        password: "{{ subs_mgr_password }}"
+        auto_attach: true
+
+    - name: Enable Red Hat yum repositories
+      rhsm_repository:
+        name: "{{ item }}"
+        state: enabled
+      with_items:
+        - rhel-8-for-x86_64-appstream-rpms
+        - rhel-8-for-x86_64-baseos-rpms
+
+    - name: Install Composer & Cockpit packages, Container tools, VDO, sos, insights-client, active directory client components
+      yum:
+        name: cockpit, cockpit-dashboard, libvirt-dbus, cockpit-machines, cockpit-composer, composer-cli, lorax-composer, cockpit-pcp, cockpit-session-recording, subscription-manager-cockpit, cockpit-storaged, cockpit-system, policycoreutils-python-utils, tlog, buildah, podman, skopeo, tree, vdo, kmod-kvdo, python3-pyyaml, sos, pcp-zeroconf, firewalld, insights-client, samba, samba-client, samba-winbind, samba-winbind-clients, realmd, sssd, oddjob, oddjob-mkhomedir, samba-common-tools, krb5-workstation, authselect-compat
+        state: installed
+
+    - name: Enable and Start firewalld service
+      service:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Configure Firewall for Cockpit
+      firewalld:
+        service: "{{ item }}"
+        permanent: true
+        state: enabled
+        immediate: yes
+      with_items:
+        - 'cockpit'
+
+          #    - name: Set SELinux in permissive mode
+          #      selinux:
+          #        policy: targeted
+          #        state: permissive
+
+    - name: Enable and Start Composer service
+      service:
+        name: lorax-composer.service
+        state: started
+        enabled: yes
+
+    - name: Enable and Start Cockpit service
+      service:
+        name: cockpit.socket
+        state: started
+        enabled: yes
+
+    - name: Install packages needed for Composer repos
+      yum:
+        name: yum-utils, createrepo, httpd
+        state: installed
+
+    - name: Configure Firewall for httpd served repos
+      firewalld:
+        service: "{{ item }}"
+        permanent: true
+        state: enabled
+        immediate: yes
+      with_items:
+        - 'http'
+
+    - name: Enable and Start httpd service
+      service:
+        name: httpd.service
+        state: started
+        enabled: yes
+
+    - name: Allow apache to modify files in /var/www/html/
+      sefcontext:
+        target: '/var/www/html/'
+        setype: httpd_sys_content_t
+        state: present
+
+    - name: Apply new SELinux file context to filesystem
+      command: restorecon -irv /var/www/html/
+
+    - name: Add ansible user to host
+      user:
+        name: ansible
+        shell: /bin/bash
+        generate_ssh_key: yes 
+        ssh_key_bits: 2048
+        ssh_key_file: .ssh/id_rsa
+        password: $6$tn2vIE9oCq.fjQ4r$tUKqkzanIl55aViCecXtOQaqbnKazTni4lDbkOAoSUYt6gjDSC4.XfjfJlHlC7939m88IuyRhCJJ3N7l5SKzD1
+        state: present
+    
+    - name: Ensure /etc/sudoers.d/users file exists
+      copy:
+        content: ""
+        dest: /etc/sudoers.d/ansible
+        force: no
+        group: sys 
+        owner: root
+        mode: 0555
+
+    - name: Add untrusted tlog user to host
+      user:
+        name: untrusted
+        shell: /usr/bin/tlog-rec-session
+        password: $6$WuZGf6olMVyQmia.$hy3tF2m0GdpgCoHWlRbK3TGQI/Zj2LMmiuXQXureVMrTgcu/JSlBmY.0aQfgynH.WLXzFWbnkoCHvj.faiCY00
+        state: present
+
+    - name: Remove subscription manager and yum repo warnings
+      lineinfile:
+        path: /etc/yum/pluginconf.d/subscription-manager.conf
+        regexp: '^enabled='
+        line: 'enabled=0'
+
+    - name: Remove subscription manager and yum repo warnings
+      lineinfile:
+        path: /etc/yum/pluginconf.d/product-id.conf
+        regexp: '^enabled='
+        line: 'enabled=0'
