@@ -8,6 +8,7 @@
     subs_mgr_username: "{{ lookup('env', 'SMUSERNAME') }}"
     subs_mgr_password: "{{ lookup('env', 'SMPASSWORD') }}"
     # To run this playbook from a linux workstation:
+    # ansible-galaxy install redhatinsights.insights-client
     # ansible-playbook -i web2.dev.ludwar.ca, -u root rhel8.cockpit.yml
 
   roles:
