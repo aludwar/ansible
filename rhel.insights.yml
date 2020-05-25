@@ -9,6 +9,6 @@
   roles:
     - role: redhatinsights.insights-client
       vars:
-        redhat_portal_username: "{{ username }}"
-        redhat_portal_password: "{{ password }}"
+        redhat_portal_username: "{{ rhnusername }}"
+        redhat_portal_password: "{{ rhnpassword }}"
       when: ansible_os_family == 'RedHat'
