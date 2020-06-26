@@ -9,7 +9,7 @@
     # Variables to create the Tower VM and App Server VM
     default_username: "ansible"
     default_password: "Password1!"
-    vm1_name: "app1"
+    vm1_name: "app2"
     vm1_ip_address: "10.0.0.20"
     vm_size: Standard_D2_v3
     res_group: "rgTowerCICD"
