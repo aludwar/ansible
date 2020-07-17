@@ -1,0 +1,32 @@
+lang en_US
+keyboard us
+timezone America/Edmonton --isUtc
+
+rootpw --iscrypted <%= snippet 'root_pass_hash' %>
+
+reboot
+text
+url --url=http://10.0.0.4/cobbler/distro_mirror/RHEL-8.1-x86_64
+bootloader --location=mbr --append="rhgb quiet crashkernel=auto"
+zerombr
+clearpart --all --initlabel
+
+<%= snippet 'aludwar_rhel8_partitioning' %>
+
+auth --passalgo=sha512 --useshadow
+selinux --enforcing
+firewall --enabled --http --ssh --port=443
+network  --bootproto=static --device=ens3 --ip=10.0.6.13 --netmask=255.255.240.0 --gateway=10.0.0.1 --nameserver=10.0.0.10,10.0.0.1 --onboot=yes --ipv6=auto --activate --hostname web3.prod.ludwar.ca
+skipx
+firstboot --disable
+repo --name=appstream --baseurl=http://10.0.0.4/cobbler/distro_mirror/RHEL-8.1-x86_64/AppStream
+%packages
+@standard
+%end
+%post --log=/root/ks-post.log
+rpm -Uvh http://satellite.ludwar.ca/pub/katello-ca-consumer-latest.noarch.rpm
+subscription-manager register --org="Red_Hat" --activationkey="RHEL8_PROD"
+yum install katello-host-tools insights-client -y
+insights-client --register
+
+%end

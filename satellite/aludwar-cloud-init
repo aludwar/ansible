@@ -1,0 +1,33 @@
+<%#
+kind: user_data
+name: Cloud-init
+-%>
+#cloud-config
+hostname: <%= @host.name %>
+users:
+  - name: cloud-user
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    passwd: <password SHA256 hash>
+    ssh_authorized_keys:
+      - ssh-rsa <public ssh key>
+  - name: andrew
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    passwd: <password SHA256 hash>
+    ssh_authorized_keys:
+      - ssh-rsa <public ssh key>
+runcmd:
+  - |
+    #!/bin/bash
+    rpm -Uvh http://satellite.ludwar.ca/pub/katello-ca-consumer-latest.noarch.rpm
+    sleep 75
+    subscription-manager register --org="Red_Hat" --activationkey="RHEL8_PROD"
+    yum install katello-host-tools insights-client -y
+    insights-client --register
+phone_home:
+ url: <%= foreman_url('built') %>
+ post: []
+ tries: 10
+power_state:
+  mode: reboot
+  delay: "+3"
+  message: Rebooting server in 3 minutes to finish provisioning.
