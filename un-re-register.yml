@@ -1,0 +1,62 @@
+---
+# This playbook is a skeleton framework to change the
+# registration of Satellite hosts from CP to Satellite
+- hosts: all
+  vars: 
+    subs_mgr_username: "{{ lookup('env', 'SMUSERNAME') }}"
+    subs_mgr_password: "{{ lookup('env', 'SMPASSWORD') }}"
+    sat_username: "{{ lookup('env', 'SATUSERNAME') }}"
+    sat_password: "{{ lookup('env', 'SATPASSWORD') }}"
+
+
+  tasks:
+    - name: Ensure Satellite client is unregistered from Customer Portal
+      community.general.redhat_subscription:
+        rhsm_baseurl: subscription.rhsm.redhat.com
+        state: absent
+        username: "{{ subs_mgr_username }}"
+        password: "{{ subs_mgr_password }}"
+
+    - name: Ensure Satellite client is unregistered from Satellite
+      community.general.redhat_subscription:
+        rhsm_baseurl: satellite.ludwar.ca
+        state: absent
+        username: "{{ sat_username }}"
+        password: "{{ sat_password }}"
+
+    - name: Clean subscriptions data
+      command:
+        cmd: /usr/sbin/subscription-manager clean      
+
+    - name: Clean yum data
+      command:
+        cmd: /usr/bin/yum clean all
+        warn: false
+
+    - name: Ensure any stale Satellite RPMs are removed
+      yum:
+        name: katello-ca-consumer-satellite.ludwar.ca*
+        state: absent 
+
+    - name: Ensure Satellite RPM is reinstalled from correct source
+      yum:
+        name: http://satellite.ludwar.ca/pub/katello-ca-consumer-latest.noarch.rpm
+        state: present
+        disable_gpg_check: yes
+
+    - name: RHEL7 - Ensure Satellite client is registered to Satellite
+      community.general.redhat_subscription:
+        rhsm_baseurl: satellite.ludwar.ca
+        state: present
+        activationkey: "RHEL7_DEV"
+        org_id: "Red_Hat"
+      when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
+
+    - name: RHEL8 - Ensure Satellite client is registered to Satellite
+      community.general.redhat_subscription:
+        rhsm_baseurl: satellite.ludwar.ca
+        state: present
+        activationkey: "RHEL8_DEV"
+        org_id: "Red_Hat"
+      when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "8"
+
