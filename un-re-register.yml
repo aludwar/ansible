@@ -27,11 +27,13 @@
     - name: Clean subscriptions data
       command:
         cmd: /usr/sbin/subscription-manager clean      
+      ignore_errors: true
 
     - name: Clean yum data
       command:
         cmd: /usr/bin/yum clean all
         warn: false
+      ignore_errors: true
 
     - name: Ensure any stale Satellite RPMs are removed
       yum:
@@ -46,17 +48,30 @@
 
     - name: RHEL7 - Ensure Satellite client is registered to Satellite
       community.general.redhat_subscription:
-        rhsm_baseurl: satellite.ludwar.ca
+        rhsm_baseurl: satellite.ludwar.ca/pulp/repos
         state: present
-        activationkey: "RHEL7_DEV"
+        activationkey: "rhel-7-dev"
         org_id: "Red_Hat"
       when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "7"
 
     - name: RHEL8 - Ensure Satellite client is registered to Satellite
       community.general.redhat_subscription:
-        rhsm_baseurl: satellite.ludwar.ca
+        rhsm_baseurl: satellite.ludwar.ca/pulp/repos
         state: present
-        activationkey: "RHEL8_DEV"
+        activationkey: "rhel-8-dev"
         org_id: "Red_Hat"
       when: ansible_distribution == "RedHat" and ansible_distribution_major_version == "8"
 
+    - name: Install Satellite client tools
+      yum:
+        name: 
+          - katello-agent
+          - katello-host-tools
+          - katello-host-tools-tracer
+        state: latest
+
+    - name: Ensure Satellite client tools are enabled
+      service:
+        name: goferd
+        enabled: yes
+        state: started
