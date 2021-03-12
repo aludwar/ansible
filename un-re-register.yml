@@ -75,3 +75,7 @@
         name: goferd
         enabled: yes
         state: started
+
+    - name: Populate foreman-proxy SSH key to Satellite clients for REX
+      shell:
+        cmd: curl https://satellite.ludwar.ca:9090/ssh/pubkey >> /root/.ssh/authorized_keys
