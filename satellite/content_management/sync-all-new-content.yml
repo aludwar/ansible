@@ -15,3 +15,14 @@
         product: "{{ item.product }}"
         repository: "{{ item.name }}"
       loop: "{{ repo_list }}"
+      async: 1200
+      poll: 0
+      register: sync_status
+
+    - name: "Check on syncing task"
+      async_status:
+        jid: "{{ sync_status.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 100
+      delay: 30
