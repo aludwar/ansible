@@ -20,9 +20,10 @@
       register: sync_status
 
     - name: "Check on syncing task"
-      async_status:
-        jid: "{{ sync_status.ansible_job_id }}"
+      ansible.builtin.async_status:
+        jid: "{{ item.ansible_job_id }}"
       register: job_result
       until: job_result.finished
       retries: 100
       delay: 30
+      loop: "{{ sync_status.results }}"
