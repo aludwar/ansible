@@ -1,0 +1,17 @@
+---
+# This playbook syncs pre-defined product repositories in Red Hat Satellite 6.10
+# in preparation for publishing in content views for a patch cycle
+- hosts: satellite.ludwar.ca
+  vars: 
+    validate_certs: false
+
+  tasks:
+    - name: "Perform full sync plan"
+      redhat.satellite.repository_sync:
+        username: "{{ satelite_username }}"
+        password: "{{ satellite_password }}"
+        server_url: "{{ satellite_server_url }}"
+        organization: "{{ satellite_organization }}"
+        product: "{{ item.name }}"
+        repository: "{{ item.repositories.name }}"
+      loop: "{{ product_list }}"

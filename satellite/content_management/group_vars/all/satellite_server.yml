@@ -1,0 +1,6 @@
+satellite_server_url: "https://satellite.ludwar.ca"
+satellite_organization: "Default Organization"
+satellite_location: "Calgary"
+satellite_username: admin
+satellite_password: redhat
+satellite_validate_certs: false
