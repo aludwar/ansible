@@ -1,0 +1,4 @@
+content_views:
+  - name: "RHEL7"
+  - name: "RHEL8"
+  - name: "AAP"

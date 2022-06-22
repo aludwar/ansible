@@ -1,0 +1,29 @@
+---
+# This playbook publishes new content versions in preparation for 
+# promoting these content views through lifecycle environments
+- hosts: satellite.ludwar.ca
+  vars: 
+    validate_certs: false
+
+  tasks:
+    - name: "Publish new content views"
+      redhat.satellite.content_view_version:
+        username: "{{ satellite_username }}"
+        password: "{{ satellite_password }}"
+        server_url: "{{ satellite_server_url }}"
+        organization: "{{ satellite_organization }}"
+        content_view: "{{ item.name }}"
+      loop: "{{ content_views }}"
+      async: 1200
+      poll: 0
+      register: cv_status
+
+    - name: "Check on content view publishing - poll every 60s"
+      ansible.builtin.async_status:
+        jid: "{{ item.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 50
+      delay: 60
+      loop: "{{ cv_status.results }}"
+

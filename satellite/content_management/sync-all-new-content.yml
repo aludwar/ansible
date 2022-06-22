@@ -19,7 +19,7 @@
       poll: 0
       register: sync_status
 
-    - name: "Check on syncing tasks"
+    - name: "Check on syncing tasks - poll every 60s"
       ansible.builtin.async_status:
         jid: "{{ item.ansible_job_id }}"
       register: job_result
@@ -41,7 +41,7 @@
       poll: 0
       register: sync_status
 
-    - name: "Check on syncing tasks"
+    - name: "Check on syncing tasks - poll every 60s"
       ansible.builtin.async_status:
         jid: "{{ item.ansible_job_id }}"
       register: job_result
@@ -63,7 +63,7 @@
       poll: 0
       register: sync_status
 
-    - name: "Check on syncing tasks"
+    - name: "Check on syncing tasks - poll every 60s"
       ansible.builtin.async_status:
         jid: "{{ item.ansible_job_id }}"
       register: job_result
@@ -85,7 +85,7 @@
       poll: 0
       register: sync_status
 
-    - name: "Check on syncing tasks"
+    - name: "Check on syncing tasks - poll every 60s"
       ansible.builtin.async_status:
         jid: "{{ item.ansible_job_id }}"
       register: job_result

@@ -1,0 +1,20 @@
+---
+# This playbook promotes content views in preparation for testing patching
+# in various lifecycle environments, starting with Development, then QA, 
+# then Production
+- hosts: satellite.ludwar.ca
+  vars: 
+    validate_certs: false
+
+  tasks:
+    - name: "Promote the configured content views from the Library to Development lifecycle environment"
+      redhat.satellite.content_view_version:
+        username: "{{ satellite_username }}"
+        password: "{{ satellite_password }}"
+        server_url: "{{ satellite_server_url }}"
+        organization: "{{ satellite_organization }}"
+        current_lifecycle_environment: Library
+        content_view: "{{ item.name }}"
+        lifecycle_environments:
+          - Development
+      loop: "{{ content_views }}"
