@@ -8,7 +8,7 @@
   tasks:
     - name: "Perform full sync plan"
       redhat.satellite.repository_sync:
-        username: "{{ satelite_username }}"
+        username: "{{ satellite_username }}"
         password: "{{ satellite_password }}"
         server_url: "{{ satellite_server_url }}"
         organization: "{{ satellite_organization }}"
