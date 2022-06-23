@@ -1,0 +1,63 @@
+---
+# This playbook pulls down the latest execution environments for AAP 2.1
+# and tags & pushes them to PAH to be used by AAP Controller.
+- hosts: aap.ludwar.ca 
+  vars: 
+    pah: aap.hub.ludwar.ca
+    registry: registry.redhat.io
+    product: ansible-automation-platform-21
+    images:
+      - name: ee-supported-rhel8
+      - name: ee-minimal-rhel8
+      - name: ee-29-rhel8
+
+  tasks:
+    - name: Authenticate to Red Hat Container Registry
+      containers.podman.podman_login:
+        username: "{{ vault_rhregistry_username }}"
+        password: "{{ vault_rhregistry_password }}"
+        registry: "{{ registry }}"
+
+    - name: Pull latest AAP 2.1 images
+      containers.podman.podman_image:
+        name: "{{ registry }}/{{ product }}/{{ item.name }}"
+        tag: latest
+        state: present
+      loop: "{{ images }}"
+
+    - name: Tag latest images for Private Automation Hub
+      containers.podman.podman_tag:
+        image: "{{ registry }}/{{ product }}/{{ item.name }}"
+        target_names: "{{ pah }}/{{ item.name }}"
+      loop: "{{ images }}"
+
+    - name: Authenticate to Private Automation Hub Container Registry
+      containers.podman.podman_login:
+        username: "{{ vault_pah_username }}"
+        password: "{{ vault_pah_password }}"
+        registry: "{{ pah }}"
+
+    - name: Push new images to Private Automation Hub
+      containers.podman.podman_image:
+        name: "{{ pah }}/{{ item.name }}"
+        push: yes
+        push_args:
+          dest: "{{ pah }}/{{ item.name }}"
+          remove_signatures: yes
+      loop: "{{ images }}"
+
+    - name: Clean up local PAH images
+      containers.podman.podman_image:
+        name: "{{ pah }}/{{ item.name }}"
+        tag: latest
+        state: absent
+        force: yes
+      loop: "{{ images }}"
+ 
+    - name: Clean up local AAP 2.1 images
+      containers.podman.podman_image:
+        name: "{{ registry }}/{{ product }}/{{ item.name }}"
+        tag: latest
+        state: absent
+        force: yes
+      loop: "{{ images }}"
