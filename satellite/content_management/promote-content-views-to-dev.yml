@@ -18,3 +18,5 @@
         lifecycle_environments:
           - Development
       loop: "{{ content_views }}"
+      async: 1200
+      poll: 30

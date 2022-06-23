@@ -15,3 +15,5 @@
         description: "Auto-publish new version pushed via Ansible"
         content_view: "{{ item.name }}"
       loop: "{{ content_views }}"
+      async: 1200
+      poll: 30
