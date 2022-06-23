@@ -13,10 +13,10 @@
         password: "{{ satellite_password }}"
         server_url: "{{ satellite_server_url }}"
         organization: "{{ satellite_organization }}"
-        current_lifecycle_environment: Library
+        current_lifecycle_environment: QA
         content_view: "{{ item.name }}"
         lifecycle_environments:
-          - Development
+          - Production
       loop: "{{ content_views_promote }}"
       async: 1200
       poll: 30
