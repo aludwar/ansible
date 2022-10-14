@@ -7,7 +7,7 @@
     - name: Ensure the latest packages & errata are applied
       ansible.builtin.dnf:
         name: 
-          - 'tigervnc*'
+          - tigervnc
           - nmap
         state: latest
       become: true
