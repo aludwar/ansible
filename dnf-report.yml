@@ -1,0 +1,19 @@
+---
+# This playbook updates all RHEL hosts, captures the resulting output for parsing & display
+- hosts: all
+  vars: 
+
+  tasks:
+    - name: Ensure the latest packages & errata are applied
+      ansible.builtin.dnf:
+        name: 
+          - 'tigervnc*'
+          - nmap
+        state: latest
+      become: true
+      register: dnf_output
+
+    - name: Display resulting output
+      ansible.builtin.debug: 
+        var: dnf_output
+
