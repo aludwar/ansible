@@ -3,7 +3,7 @@
   hosts: all
   become: yes
   collections:
-    - redhat.insights
+    - redhatinsights.insights
   vars:
     redhat_portal_username: "{{ rhnusername }}"
     redhat_portal_password: "{{ rhnpassword }}"
