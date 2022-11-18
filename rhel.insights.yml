@@ -4,11 +4,11 @@
   become: yes
   collections:
     - redhatinsights.insights
-  vars:
-    redhat_portal_username: "{{ rhnusername }}"
-    redhat_portal_password: "{{ rhnpassword }}"
+#  vars:
+#    redhat_portal_username: "{{ rhnusername }}"
+#    redhat_portal_password: "{{ rhnpassword }}"
 
   tasks:
     - include_role:
         name: insights_client
-      when: ansible_os_family == 'RedHat'
+#     when: ansible_os_family == 'RedHat'
