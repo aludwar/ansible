@@ -2,13 +2,13 @@
 - name: Activate Red Hat Insights on RHEL clients
   hosts: all
   become: yes
-    # To run this playbook from a linux workstation:
-    # ansible-galaxy install redhatinsights.insights-client
-    # ansible-playbook -i web2.dev.ludwar.ca, -u root rhel8.cockpit.yml
+  collections:
+    - redhatinsights.insights
+  vars:
+    redhat_portal_username: "{{ rhnusername }}"
+    redhat_portal_password: "{{ rhnpassword }}"
 
-  roles:
-    - role: redhatinsights.insights-client
-      vars:
-        redhat_portal_username: "{{ rhnusername }}"
-        redhat_portal_password: "{{ rhnpassword }}"
+  tasks:
+    - include_role:
+      name: insights_client
       when: ansible_os_family == 'RedHat'
