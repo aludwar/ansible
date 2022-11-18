@@ -3,12 +3,12 @@
   hosts: all
   become: yes
   collections:
-    - redhatinsights.insights
+    - redhat.insights
   vars:
     redhat_portal_username: "{{ rhnusername }}"
     redhat_portal_password: "{{ rhnpassword }}"
 
   tasks:
     - include_role:
-        name: insights_client
+        name: redhat.insights.insights_client
      when: ansible_os_family == 'RedHat'
