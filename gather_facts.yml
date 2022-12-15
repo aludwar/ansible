@@ -1,7 +1,8 @@
 ---
-- hosts: all
-  gather_facts: True
+- name: Gather facts on hosts
+  hosts: all
+  gather_facts: true
   tasks:
-    - name: Facts have been gathered
-      debug:
+    - name: Ensure facts have been gathered
+      ansible.builtin.debug:
         msg: "Facts are now gathered"
