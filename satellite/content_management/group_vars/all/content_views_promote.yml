@@ -1,5 +1,4 @@
 content_views_promote:
-  - name: "RHEL7"
   - name: "RHEL8"
   - name: "RHEL9"
   - name: "AAP"
