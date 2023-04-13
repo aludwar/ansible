@@ -10,28 +10,6 @@
       ansible.builtin.debug:
         msg: "Satellite user: {{ satellite_username }} Satellite pass: {{  satellite_password }}"
 
-    - name: "Sync all RHEL 7 related repos"
-      redhat.satellite.repository_sync:
-        username: "{{ satellite_username }}"
-        password: "{{ satellite_password }}"
-        server_url: "{{ satellite_server_url }}"
-        organization: "{{ satellite_organization }}"
-        product: "{{ item.product }}"
-        repository: "{{ item.name }}"
-      loop: "{{ rhel7_repo_list }}"
-      async: 1200
-      poll: 0
-      register: sync_status
-
-    - name: "Check on syncing tasks - poll every 60s"
-      ansible.builtin.async_status:
-        jid: "{{ item.ansible_job_id }}"
-      register: job_result
-      until: job_result.finished
-      retries: 50
-      delay: 60
-      loop: "{{ sync_status.results }}"
-
     - name: "Sync all RHEL 8 related repos"
       redhat.satellite.repository_sync:
         username: "{{ satellite_username }}"
