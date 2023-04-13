@@ -6,10 +6,6 @@
     validate_certs: false
 
   tasks:
-    - name: Output variables
-      ansible.builtin.debug:
-        msg: "Satellite user: {{ satellite_username }} Satellite pass: {{  satellite_password }}"
-
     - name: "Sync all RHEL 8 related repos"
       redhat.satellite.repository_sync:
         username: "{{ satellite_username }}"
