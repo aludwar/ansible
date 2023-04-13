@@ -8,7 +8,7 @@
   tasks:
     - name: Output variables
       ansible.builtin.debug:
-        msg: Satellite user: {{ satellite_username }} Satellite pass: {{  satellite_password }}
+        msg: Satellite user: "{{ satellite_username }}" Satellite pass: "{{  satellite_password }}"
 
     - name: "Sync all RHEL 7 related repos"
       redhat.satellite.repository_sync:
