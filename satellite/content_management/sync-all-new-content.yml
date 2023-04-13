@@ -50,7 +50,7 @@
       delay: 60
       loop: "{{ sync_status.results }}"
 
-    - name: "Sync Ansible related repos"
+    - name: "Sync AAP related repos"
       redhat.satellite.repository_sync:
         username: "{{ satellite_username }}"
         password: "{{ satellite_password }}"
