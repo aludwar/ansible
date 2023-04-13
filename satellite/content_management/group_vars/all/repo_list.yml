@@ -1,23 +1,7 @@
-rhel7_repo_list:
-  - name: "Red Hat Enterprise Linux 7 Server - Optional RPMs x86_64 7Server"
-    product: "Red Hat Enterprise Linux Server"
-  - name: "Red Hat Enterprise Linux 7 Server RPMs x86_64 7Server"
-    product: "Red Hat Enterprise Linux Server"
-  - name: "Red Hat Enterprise Linux 7 Server - Extras RPMs x86_64"
-    product: "Red Hat Enterprise Linux Server"
-  - name: "Red Hat Satellite Utils 6.11 for RHEL 7 Server RPMs x86_64"
-    product: "Red Hat Enterprise Linux Server"
-  - name: "Red Hat Satellite Client 6 for RHEL 7 Server RPMs x86_64"
-    product: "Red Hat Enterprise Linux Server"
-  - name: "Red Hat Software Collections RPMs for Red Hat Enterprise Linux 7 Server x86_64 7Server"
-    product: "Red Hat Software Collections (for RHEL Server)"
-
 rhel8_repo_list:
   - name: "Red Hat Enterprise Linux 8 for x86_64 - AppStream RPMs 8"
     product: "Red Hat Enterprise Linux for x86_64"
   - name: "Red Hat Enterprise Linux 8 for x86_64 - BaseOS RPMs 8"
-    product: "Red Hat Enterprise Linux for x86_64"
-  - name: "Red Hat Satellite Utils 6.11 for RHEL 8 x86_64 RPMs"
     product: "Red Hat Enterprise Linux for x86_64"
   - name: "Red Hat Satellite Client 6 for RHEL 8 x86_64 RPMs"
     product: "Red Hat Enterprise Linux for x86_64"
@@ -30,17 +14,7 @@ rhel9_repo_list:
   - name: "Red Hat Satellite Client 6 for RHEL 9 x86_64 RPMs"
     product: "Red Hat Enterprise Linux for x86_64"
 
-other_repo_list:    
-  - name: "Red Hat Virtualization 4 Management Agents for RHEL 7 RPMs x86_64 7Server"
-    product: "Red Hat Virtualization"
-  - name: "Red Hat Virtualization 4 Management Agents for RHEL 8 x86_64 RPMs"
-    product: "Red Hat Virtualization"
-  - name: "Red Hat Ansible Engine 2.9 RPMs for Red Hat Enterprise Linux 7 Server x86_64"
-    product: "Red Hat Ansible Engine"
-  - name: "Red Hat Ansible Engine 2.9 for RHEL 8 x86_64 RPMs"
-    product: "Red Hat Ansible Engine"
-  - name: "Red Hat Ansible Automation Platform 2.1 for RHEL 8 x86_64 RPMs"
-    product: "Red Hat Ansible Automation Platform"
+aap_repo_list:    
   - name: "Red Hat Ansible Automation Platform 2.3 for RHEL 9 x86_64 RPMs"
     product: "Red Hat Ansible Automation Platform"
   - name: "Red Hat Automation Hub 4.2 for RHEL 8 x86_64 RPMs"

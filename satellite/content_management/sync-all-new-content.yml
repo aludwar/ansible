@@ -6,6 +6,10 @@
     validate_certs: false
 
   tasks:
+    - name: Output variables
+      ansible.builtin.debug:
+        msg: Satellite user: {{ satellite_username }} Satellite pass: {{  satellite_password }}
+
     - name: "Sync all RHEL 7 related repos"
       redhat.satellite.repository_sync:
         username: "{{ satellite_username }}"
@@ -72,7 +76,7 @@
       delay: 60
       loop: "{{ sync_status.results }}"
 
-    - name: "Sync all RHV & Ansible related repos"
+    - name: "Sync Ansible related repos"
       redhat.satellite.repository_sync:
         username: "{{ satellite_username }}"
         password: "{{ satellite_password }}"
@@ -80,7 +84,7 @@
         organization: "{{ satellite_organization }}"
         product: "{{ item.product }}"
         repository: "{{ item.name }}"
-      loop: "{{ other_repo_list }}"
+      loop: "{{ aap_repo_list }}"
       async: 1200
       poll: 0
       register: sync_status
