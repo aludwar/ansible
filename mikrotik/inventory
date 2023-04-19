@@ -1,0 +1,24 @@
+[all:vars]
+ansible_connection=ansible.netcommon.network_cli
+ansible_network_os=community.network.routeros
+ansible_user=aludwar
+
+[mikrotik]
+10.0.0.1    ansible_host=fwro.ludwar.ca
+10.0.0.2    ansible_host=sw.ludwar.ca
+10.0.0.3    ansible_host=ap.ludwar.ca
+10.0.0.5    ansible_host=ap2.ludwar.ca
+10.0.0.6    ansible_host=sw2.ludwar.ca
+
+[routeros]
+10.0.0.1    ansible_host=fwro.ludwar.ca
+10.0.0.2    ansible_host=sw.ludwar.ca
+10.0.0.3    ansible_host=ap.ludwar.ca
+10.0.0.5    ansible_host=ap2.ludwar.ca
+
+[switchos]
+10.0.0.6    ansible_host=sw2.ludwar.ca
+
+[mikrotik:children]
+routeros
+switchos

@@ -1,0 +1,20 @@
+---
+- name: Backup Mikrotik RouterOS Configuration
+  hosts: routeros
+  remote_user: aludwar
+  tasks:
+    - name: Collect all facts from devices
+      community.routeros.facts:
+
+    - name: Fetch device name 
+      community.routeros.command:
+        commands: /system identity print
+      register: device_hostname
+
+    - name: Print device name
+      ansible.builtin.debug:
+        var: device_hostname.stdout_lines
+
+    - name: Print ansible facts device name
+      ansible.builtin.debug:
+        var: ansible_net_hostname
