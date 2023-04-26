@@ -19,8 +19,9 @@ One can use this to automate:
 * Promotion of those Content Views through an Environment Lifecycle
 * Combining all of the above into a Workflow Template that sets it, and forgets it
 
-Inspired by the wealth of knowledge of [Paul Armstrong](https://github.com/parmstro/AutomatingContentManagement), and his 3 part blog on the topic. Paul goes much deeper than the above examples, I tried to offer an automation interpretation mere mortals. Paul's blog series:
+Inspired by the wealth of knowledge of [Paul Armstrong](https://github.com/parmstro/AutomatingContentManagement), and his 3 part blog on the topic. Paul goes much deeper than the above examples, I tried to offer an automation interpretation mere mortals. i
 
+Paul's blog series:
 * Part 1: [Automating Content Management in Red Hat Satellite 6.9 with Red Hat Ansible Automation Platform](https://www.redhat.com/en/blog/automating-content-management-red-hat-satellite-69-red-hat-ansible-automation-platform-planning-workflow)
 * Part 2: [Automating Content Management in Red Hat Satellite 6.9 with Red Hat Ansible Automation Platform](https://www.redhat.com/en/blog/automating-content-management-satellite-69-ansible-automation-platform-part-2)
 * Part 3: [Automating Content Management in Red Hat Satellite 6.9 with Red Hat Ansible Automation Platform](https://www.redhat.com/en/blog/automating-content-management-satellite-69-ansible-automation-platform-part-3)
