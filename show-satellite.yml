@@ -1,27 +1,28 @@
 ---
 # This playbook uses the shell module to query a Satellite client, and tell us what Satellite server it's currently registered to.
 - name: Show current registered Satellite server
-  hosts: all 
+  hosts: all
   serial: 1
 
   tasks:
-  - name: Ask Satellite clients what Satellite server they're registered to
-    shell: /usr/sbin/subscription-manager config --list | /usr/bin/egrep 'hostname' | /usr/bin/egrep -v 'proxy'
-    register: satellite
+    - name: Ask Satellite clients what Satellite server they're registered to
+      ansible.builtin.shell: /usr/sbin/subscription-manager config --list | /usr/bin/egrep 'hostname' | /usr/bin/egrep -v 'proxy'
+      register: satellite
 
-  - name: Show result to STDOUT
-    debug:
-      msg: "System {{ inventory_hostname }} is registered to {{ satellite.stdout }} . "
+    - name: Show result to STDOUT
+      ansible.builtin.debug:
+        msg: "System {{ inventory_hostname }} is registered to {{ satellite.stdout }} . "
 
-  - name: Create output log file
-    file:
-      dest: /tmp/satellite_client_audit.txt
-      state: touch
-    delegate_to: localhost
+    - name: Create output log file
+      ansible.builtin.file:
+        dest: /tmp/satellite_client_audit.txt
+        state: touch
+      delegate_to: localhost
 
-  - name: Write result to local logfile
-    lineinfile:
-      dest: /tmp/satellite_client_audit.txt
-      line: "{{ inventory_hostname }} is registered to {{ satellite.stdout }} . "
-      insertafter: EOF
-    delegate_to: localhost
+    - name: Write result to local logfile
+      ansible.builtin.lineinfile:
+        dest: /tmp/satellite_client_audit.txt
+        line: "{{ inventory_hostname }} is registered to {{ satellite.stdout }} . "
+        insertafter: EOF
+      delegate_to: localhost
+      
