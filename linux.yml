@@ -1,9 +1,9 @@
 ---
 # This playbook uses the ping module to test connectivity to Linux hosts
-- name: Ping 
-  hosts: all 
+- name: Test connectivity to Linux hosts using ping module
+  hosts: all
   vars:
 
   tasks:
-  - name: Test ping to host inventory
-    ping:
+    - name: Test ping to host inventory
+      ansible.builtin.ping:
