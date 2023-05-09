@@ -1,10 +1,11 @@
 ---
 # This playbook updates all RHEL hosts
-- hosts: all
-  vars: 
-
+- name: Update all packages on every host to the latest
+  hosts: all
+  
   tasks:
     - name: Ensure the latest patches and errata are applied to linux clients
-      yum:
+      ansible.builtin.dnf:
         name: '*'
         state: latest
+        
