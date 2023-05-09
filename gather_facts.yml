@@ -6,3 +6,7 @@
     - name: Ensure facts have been gathered
       ansible.builtin.debug:
         msg: "Facts are now gathered"
+
+    - name: Display all facts
+      ansible.builtin.debug:
+        var: ansible_facts
