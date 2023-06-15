@@ -7,6 +7,39 @@
       community.general.redhat_subscription:
         state: present
         activationkey: RHEL9
+      when: ansible_distribution == "RedHat"
+
+
+#    - name: Update RHEL servers packages to the latest versions
+
+#    - name: Ensure httpd web server is installed
+
+#    - name: Ensure firewall ports are open for the web server
+
+#    - name: Ensure the web server and firewall are enabled and started at boot
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      community.general.redhat_subscription:
+        state: present
+        activationkey: RHEL9
       when: ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version']
         == "9"
 
