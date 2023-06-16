@@ -3,12 +3,7 @@
   hosts: all
   
   tasks:
-    - name: Register a RHEL9 client to Red Hat Satellite
-      community.general.redhat_subscription:
-        state: present
-        activationkey: RHEL9
-      when: ansible_distribution == "RedHat"
-
+#    - name: Register a RHEL9 client to Red Hat Satellite
 
 #    - name: Update RHEL servers packages to the latest versions
 
@@ -17,60 +12,3 @@
 #    - name: Ensure firewall ports are open for the web server
 
 #    - name: Ensure the web server and firewall are enabled and started at boot
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      community.general.redhat_subscription:
-        state: present
-        activationkey: RHEL9
-      when: ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version']
-        == "9"
-
-    - name: Update RHEL servers packages to the latest versions
-      when: ansible_facts['distribution'] == "RedHat"
-      ansible.builtin.package:
-        name: '*'
-        state: latest
-
-    - name: Ensure httpd web server is installed
-      ansible.builtin.package:
-        name: httpd
-        state: present
-
-    - name: Ensure firewall ports are open for the web server
-      ansible.posix.firewalld:
-        port: "{{ item }}"
-        permanent: true
-        state: enabled
-        immediate: true
-      loop:
-        - 80/tcp
-        - 443/tcp
-
-    - name: Ensure the web server and firewall are enabled and started at boot
-      ansible.builtin.service:
-        name: "{{ item }}"
-        state: started
-        enabled: true
-      loop:
-        - httpd
-        - firewalld
-
-    
