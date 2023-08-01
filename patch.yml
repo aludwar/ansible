@@ -15,7 +15,7 @@
       when: pingtest is failed
 
   tasks:
-    - name: Ensure the latest patches and errata are applied to linux clients
+    - name: Ensure the latest patches and errata are applied to RHEL clients
       ansible.builtin.dnf:
         name: '*'
         state: latest
