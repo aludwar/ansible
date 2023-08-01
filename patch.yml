@@ -27,7 +27,7 @@
     - name: Wait for machine to come back online
       ansible.builtin.wait_for:
         port: 22
-        host: {{ inventory_hostname }}
+        host: "{{ inventory_hostname }}"
         delay: 30
         timeout: 120
 
