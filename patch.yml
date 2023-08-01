@@ -15,6 +15,9 @@
       when: pingtest is failed
 
   tasks:
+    - name: Notify any logged in users on the machine
+      ansible.builtin.command: /usr/bin/wall "Host is being patched and will be rebooted shortly! Please save work and log off."
+
     - name: Ensure the latest patches and errata are applied to RHEL clients
       ansible.builtin.dnf:
         name: '*'
