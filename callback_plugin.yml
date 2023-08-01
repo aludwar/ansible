@@ -1,0 +1,21 @@
+---
+- name: Test callback plugin between Satellite & AAP
+  hosts: all
+
+  tasks:
+    - name: Set content in /etc/motd
+      ansible.builtin.copy:
+        content: Authorized use only!
+        dest: /etc/motd
+        owner: root
+        group: root
+
+    - name: Create aludwar user account
+      ansible.builtin.user:
+        name: aludwar
+        state: present
+
+    - name: Ensure httpd package is installed
+      ansible.builtin.dnf:
+        name: httpd
+        state: present
