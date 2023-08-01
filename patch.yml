@@ -25,13 +25,12 @@
 
     - name: Reboot host after patching
       ansible.builtin.reboot:
-        reboot_timeout: 30
 
     - name: Wait for machine to come back online
       ansible.builtin.wait_for:
         port: 22
         host: "{{ inventory_hostname }}"
-        delay: 30
+        delay: 10
         timeout: 120
 
     - name: Ensure that we can reach all hosts after they were patched
