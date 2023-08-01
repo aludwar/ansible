@@ -5,7 +5,7 @@
 
   pre_tasks:
     - name: Ensure that we can reach all hosts to be patched
-      ansible.builin.ping:
+      ansible.builtin.ping:
       register: pingtest
       ignore_errors: true
 
@@ -32,4 +32,4 @@
         timeout: 120
 
     - name: Ensure that we can reach all hosts after they were patched
-      ansible.builin.ping:
+      ansible.builtin.ping:
