@@ -1,0 +1,35 @@
+---
+# This playbook updates all RHEL hosts
+- name: Update all packages on every host to the latest
+  hosts: web3.dev.ludwar.ca
+
+  pre_tasks:
+    - name: Ensure that we can reach all hosts to be patched
+      ansible.builin.ping:
+      register: pingtest
+      ignore_errors: true
+
+    - name: Fail patching if any host cannot be reached
+      ansible.builtin.fail:
+        msg: "Some systems could not be reached! Please investigate before continuing with patching."
+      when: pingtest is failed
+
+  tasks:
+    - name: Ensure the latest patches and errata are applied to linux clients
+      ansible.builtin.dnf:
+        name: '*'
+        state: latest
+
+    - name: Reboot host after patching
+      ansible.builtin.reboot:
+        reboot_timeout: 30
+
+    - name: Wait for machine to come back online
+      ansible.builtin.wait_for:
+        port: 22
+        host: {{ inventory_hostname }}
+        delay: 30
+        timeout: 120
+
+    - name: Ensure that we can reach all hosts after they were patched
+      ansible.builin.ping:
