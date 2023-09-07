@@ -1,4 +1,6 @@
+
 Host: {{ inventory_hostname }}
 {% for key, value in hostvars[inventory_hostname].items() %}
 {{ key }}: {{ value }}
 {% endfor %}
+
