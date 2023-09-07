@@ -15,4 +15,5 @@
         dest: /home/aludwar/host_variables.txt
         block: "{{ lookup('template', 'host_variables.j2') }}"
         marker: "; {mark} ANSIBLE MANAGED BLOCK FOR {{ inventory_hostname }}"
+      delegate_to: nfs.ludwar.ca
 
