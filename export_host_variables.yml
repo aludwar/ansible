@@ -1,0 +1,16 @@
+---
+- name: Gather Facts and Output Host Variables
+  hosts: all
+  gather_facts: yes
+
+  tasks:
+    - name: Debug host variables
+      ansible.builtin.debug:
+        var: hostvars[inventory_hostname]
+      register: host_facts
+
+    - name: Create host variables text file
+      ansible.builtin.template:
+        src: host_variables.j2
+        dest: /tmp/host_variables.txt
+
