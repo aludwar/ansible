@@ -10,9 +10,9 @@
         dest: /home/aludwar/host_variables.txt
       delegate_to: nfs.ludwar.ca
 
-     - name: Append to host variables text file
-       ansible.builtin.blockinfile:
-         dest: /home/aludwar/host_variables.txt
-         block: "{{ lookup('template', 'host_variables.j2) }}"
-         marker: "; {mark} ANSIBLE MANAGED BLOCK FOR {{ inventory_hostname }}"
+    - name: Append to host variables text file
+      ansible.builtin.blockinfile:
+        dest: /home/aludwar/host_variables.txt
+        block: "{{ lookup('template', 'host_variables.j2) }}"
+        marker: "; {mark} ANSIBLE MANAGED BLOCK FOR {{ inventory_hostname }}"
 
