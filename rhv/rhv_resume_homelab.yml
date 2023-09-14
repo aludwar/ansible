@@ -1,0 +1,51 @@
+---                                      
+- name: Resume homelab environment
+  hosts: localhost                    
+  vars:                               
+    rhv_ca_file: /etc/pki/ovirt-engine/ca.pem
+    rhv_hostname: https://rhevm.ludwar.ca/ovirt-engine/api
+    rhv_username: admin@internal         
+    rhv_password: password              
+                                      
+  tasks:                              
+    - name: Boot up storage host
+      ansible.builtin.shell: /usr/local/bin/start_asimov
+      delegate_to: <workstation>
+      remote_user: aludwar
+
+    - name: Boot up compute host
+      ansible.builtin.shell: /usr/local/bin/start_curie
+      delegate_to: <workstation>
+      remote_user: aludwar
+
+    - name: Wait for compute host to come up
+      ansible.builtin.wait_for:
+        host: <ip address>
+        port: 22
+        delay: 120
+      connection: local
+
+    - name: Wait for storage host to come up
+      ansible.builtin.wait_for:
+        host: <ip address>
+        port: 22
+        delay: 20
+      connection: local
+
+    - name: Authenticate to RHV          
+      ovirt.ovirt.ovirt_auth:         
+        url: "{{ rhv_hostname }}"        
+        ca_file: "{{ rhv_ca_file }}"  
+        username: "{{ rhv_username }}"
+        password: "{{ rhv_password }}"                                                                                                                                                                                                                                                                                        
+    - name: Activate compute hosts
+      ovirt.ovirt.ovirt_host:
+        auth: "{{ ovirt_auth }}"
+        name: curie.ludwar.ca
+        state: present
+
+    - name: Activate storage domain(s)
+      ovirt.ovirt.ovirt_storage_domain:         
+        auth: "{{ ovirt_auth }}"
+        name: NVME
+        state: present

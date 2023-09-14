@@ -1,0 +1,45 @@
+---                                      
+- name: Suspend homelab environment
+  hosts: localhost                    
+  vars:                               
+    rhv_ca_file: /etc/pki/ovirt-engine/ca.pem
+    rhv_hostname: https://rhevm.ludwar.ca/ovirt-engine/api
+    rhv_username: admin@internal         
+    rhv_password: password              
+                                      
+  tasks:                              
+    - name: Authenticate to RHV          
+      ovirt.ovirt.ovirt_auth:         
+        url: "{{ rhv_hostname }}"        
+        ca_file: "{{ rhv_ca_file }}"  
+        username: "{{ rhv_username }}"
+        password: "{{ rhv_password }}"                                                                                                                                                                                                                                                                                        
+                                      
+    - name: Shutdown all VMS in RHV   
+      ovirt.ovirt.ovirt_vm:         
+        auth: "{{ ovirt_auth }}"
+        name: "*"
+        state: stopped                
+
+    - name: Place storage domain(s) in maintenance
+      ovirt.ovirt.ovirt_storage_domain:         
+        auth: "{{ ovirt_auth }}"
+        name: NVME
+        state: maintenance
+
+    - name: Place compute hosts(s) in maintenance
+      ovirt.ovirt.ovirt_host:
+        auth: "{{ ovirt_auth }}"
+        name: curie.ludwar.ca
+        state: maintenance
+
+    - name: Shut down storage host
+      ansible.builtin.shell: /usr/local/bin/stop_asimov
+      delegate_to: <workstation>
+      remote_user: aludwar
+
+    - name: Boot up compute host
+      ansible.builtin.shell: /usr/local/bin/stop_curie
+      delegate_to: <workstation>
+      remote_user: aludwar
+
