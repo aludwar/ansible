@@ -9,12 +9,12 @@
       register: ping_result
       when: ansible_facts['distribution'] == "RedHat"
 
-    - name: Display Ping Results for Linux Servers
-      ansible.builtin.debug:
-        var: "{{ ansible_fqdn }} + ': ' + {{ item.ping }}"
-      loop: "{{ ansible_play_hosts | map('extract', hostvars) | selectattr('ansible_distribution', 'equalto', 'RedHat') | list }}"
-      when: item.ping is defined
-
+#    - name: Display Ping Results for Linux Servers
+#      ansible.builtin.debug:
+#        var: "{{ ansible_fqdn }} + ': ' + {{ item.ping }}"
+#      loop: "{{ ansible_play_hosts | map('extract', hostvars) | selectattr('ansible_distribution', 'equalto', 'RedHat') | list }}"
+#      when: item.ping is defined
+#
 #    - name: Ping Windows Servers
 #      ansible.windows.win_ping:
 #      register: ping_result
@@ -28,7 +28,7 @@
 
     - name: Calculate Reachability Percentage
       set_fact:
-        reachable: "{{ ping_result.results | selectattr('ping', 'defined') | list | length }}"
+        reachable: "{{ ping_result.stdout | selectattr('ping', 'defined') | list | length }}"
         total_servers: "{{ ansible_play_hosts | length }}"
 
     - name: Write Ping Results to File
