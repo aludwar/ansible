@@ -33,7 +33,7 @@
 
     - name: Display Reachability Percentage
       ansible.builtin.debug:
-        var: "{{ ping_result }}"
+        msg: "{{ ping_result }}"
 
     - name: Write Ping Results to File
       ansible.builtin.template:
