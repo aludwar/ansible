@@ -33,7 +33,7 @@
 
     - name: Display Reachability Percentage
       ansible.builtin.debug:
-        msg: "{{ reachable }} servers are reachable out of {{ total_servers }}"
+        var: "{{ ping_result }}"
 
     - name: Write Ping Results to File
       ansible.builtin.template:
