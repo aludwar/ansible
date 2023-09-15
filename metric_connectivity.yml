@@ -7,7 +7,7 @@
     - name: Ping Linux Servers
       ansible.builtin.ping:
       register: ping_result
-      when: "'RedHat' in ['ansible_distribution']"
+      when: "'RedHat' in {{ ansible_distribution }}"
 
     - name: Display Ping Results for Linux Servers
       ansible.builtin.debug:
