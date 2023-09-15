@@ -11,7 +11,7 @@
 
     - name: Display Ping Results for Linux Servers
       ansible.builtin.debug:
-        var: item.ansible_facts['ansible_fqdn'] + ": " + item.ping
+        var: "{{ item.ansible_facts['ansible_fqdn'] + ": " + item.ping }}"
       loop: "{{ ansible_play_hosts | map('extract', hostvars) | selectattr('ansible_facts.ansible_distribution', 'equalto', 'Linux') | list }}"
       when: item.ping is defined
 
