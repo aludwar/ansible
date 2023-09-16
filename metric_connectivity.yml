@@ -31,6 +31,11 @@
 
     - name: Calculate Reachability Percentage
       ansible.builtin.set_fact:
+        reachablefs: "{{ ping_result | selectattr('ping', 'defined') | list }}"
+        total_servers: "{{ ansible_play_hosts | length | int }}"
+
+    - name: Calculate Reachability Percentage
+      ansible.builtin.set_fact:
         reachable: "{{ ping_result | selectattr('ping', 'defined') | list | length | int }}"
         total_servers: "{{ ansible_play_hosts | length | int }}"
 
