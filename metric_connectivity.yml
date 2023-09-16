@@ -27,7 +27,7 @@
 #      when: item.ping is defined
     - name: Display Reachability Percentage
       ansible.builtin.debug:
-        msg: "{{ ping_result }}"
+        msg: "{{ ping_result.ping }}"
 
     - name: Calculate Reachability Percentage
       ansible.builtin.set_fact:
