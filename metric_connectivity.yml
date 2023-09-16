@@ -28,12 +28,12 @@
 
     - name: Calculate Reachability Percentage
       ansible.builtin.set_fact:
-        reachable: "{{ ansible_play_hosts | int }}"
-        total_servers: "{{ ansible_play_hosts_all | int }}"
+        reachable: "{{ ansible_play_hosts | length }}"
+        total_servers: "{{ ansible_play_hosts_all | length }}"
 
     - name: Display Reachability Percentage
       ansible.builtin.debug:
-        var: "{{ reachable }} + ' out of ' + {{ total_servers }}"
+        msg: "{{ reachable }} reachable out of {{ total_servers }}"
 
     - name: Write Ping Results to File
       ansible.builtin.template:
