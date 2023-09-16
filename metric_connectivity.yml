@@ -1,7 +1,7 @@
 ---
 - name: Capture Connectivity Metrics for Linux and Windows Servers
   hosts: all
-  gather_facts: false
+  gather_facts: true
 
   tasks:
     - name: Ping Linux Servers
