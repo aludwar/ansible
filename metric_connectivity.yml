@@ -28,7 +28,7 @@
 
     - name: Calculate Reachability Percentage
       ansible.builtin.set_fact:
-        reachable: "{{ ping_result | selectattr('ping','==','pong') | length | int }}"
+        reachable: "{{ ping_result | selectattr('ping', '==', 'pong') | length | int }}"
         total_servers: "{{ ansible_play_hosts | length | int }}"
 
     - name: Display Reachability Percentage
@@ -39,5 +39,5 @@
       ansible.builtin.template:
         src: metric_connectivity.j2
         dest: /home/aludwar/metric_connectivity_report.txt
-        mode: 0644
+        mode: 644
       delegate_to: nfs.ludwar.ca
