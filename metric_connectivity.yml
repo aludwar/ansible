@@ -1,30 +1,13 @@
 ---
 - name: Capture Connectivity Metrics for Linux and Windows Servers
   hosts: all
-  gather_facts: true
+  gather_facts: false
 
   tasks:
     - name: Ping Linux Servers
       ansible.builtin.ping:
       register: ping_result
       when: ansible_facts['distribution'] == "RedHat"
-
-#    - name: Display Ping Results for Linux Servers
-#      ansible.builtin.debug:
-#        var: "{{ ansible_fqdn }} + ': ' + {{ item.ping }}"
-#      loop: "{{ ansible_play_hosts | map('extract', hostvars) | selectattr('ansible_distribution', 'equalto', 'RedHat') | list }}"
-#      when: item.ping is defined
-#
-#    - name: Ping Windows Servers
-#      ansible.windows.win_ping:
-#      register: ping_result
-#      when: "'Windows' in ansible_facts['ansible_distribution']"
-#
-#    - name: Display Ping Results for Windows Servers
-#      ansible.builtin.debug:
-#        var: item.ansible_facts['ansible_fqdn'] + ": " + item.ping
-#      loop: "{{ ansible_play_hosts | map('extract', hostvars) | selectattr('ansible_facts.ansible_distribution', 'equalto', 'Windows') | list }}"
-#      when: item.ping is defined
 
     - name: Calculate Reachability Percentage
       ansible.builtin.set_fact:
