@@ -1,7 +1,7 @@
 ---
 - name: Capture Connectivity Metrics for Linux and Windows Servers
   hosts: all
-  gather_facts: yes
+  gather_facts: true
 
   tasks:
     - name: Ping Linux Servers
@@ -27,8 +27,8 @@
 #      when: item.ping is defined
 
     - name: Calculate Reachability Percentage
-      set_fact:
-        reachable: "{{ ping_result | selectattr('ping', 'defined') | length | int }}"
+      ansible.builtin.set_fact:
+        reachable: "{{ ping_result | selectattr('ping','==','pong') | length | int }}"
         total_servers: "{{ ansible_play_hosts | length | int }}"
 
     - name: Display Reachability Percentage
@@ -39,5 +39,5 @@
       ansible.builtin.template:
         src: metric_connectivity.j2
         dest: /home/aludwar/metric_connectivity_report.txt
+        mode: 0644
       delegate_to: nfs.ludwar.ca
-
