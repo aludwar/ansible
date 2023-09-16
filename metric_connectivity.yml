@@ -31,7 +31,7 @@
 
     - name: Calculate Reachability Percentage
       ansible.builtin.set_fact:
-        reachable: "{{ ping_result | selectattr('ping', '==', 'pong') | length | int }}"
+        reachable: "{{ ping_result | dict2items | selectattr('ping', 'match', 'pong') | length | int }}"
         total_servers: "{{ ansible_play_hosts | length | int }}"
 
     - name: Write Ping Results to File
