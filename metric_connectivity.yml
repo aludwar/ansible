@@ -27,11 +27,11 @@
 #      when: item.ping is defined
     - name: Display Reachability Percentage
       ansible.builtin.debug:
-        msg: "{{ ping_result.ping }}"
+        msg: "{{ ping_result }}"
 
     - name: Calculate Reachability Percentage
       ansible.builtin.set_fact:
-        reachable: "{{ ping_result.ping | selectattr('ping', 'match', 'pong') | length | int }}"
+        reachable: "{{ ping_result | selectattr('ping', 'defined') | list | length | int }}"
         total_servers: "{{ ansible_play_hosts | length | int }}"
 
     - name: Write Ping Results to File
