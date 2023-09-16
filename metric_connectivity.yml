@@ -1,5 +1,5 @@
 ---
-- name: Capture Connectivity Metrics for Linux and Windows Servers
+- name: Capture Connectivity Metrics for Linux Servers
   hosts: all
   gather_facts: true
 
