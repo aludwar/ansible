@@ -25,19 +25,15 @@
 #        var: item.ansible_facts['ansible_fqdn'] + ": " + item.ping
 #      loop: "{{ ansible_play_hosts | map('extract', hostvars) | selectattr('ansible_facts.ansible_distribution', 'equalto', 'Windows') | list }}"
 #      when: item.ping is defined
+
+    - name: Calculate Reachability Percentage
+      ansible.builtin.set_fact:
+        reachable: "{{ ansible_play_hosts | int }}"
+        total_servers: "{{ ansible_play_hosts_all | int }}"
+
     - name: Display Reachability Percentage
       ansible.builtin.debug:
-        msg: "{{ ping_result }}"
-
-    - name: Calculate Reachability Percentage
-      ansible.builtin.set_fact:
-        reachable: "{{ ping_result.ping | list | length }}"
-        total_servers: "{{ ansible_play_hosts | length | int }}"
-
-    - name: Calculate Reachability Percentage
-      ansible.builtin.set_fact:
-        reachable: "{{ ping_result | selectattr('ping', 'equalto', 'pong') | list | length }}"
-        total_servers: "{{ ansible_play_hosts | length | int }}"
+        var: "{{ reachable }} out of {{ total_servers }}"
 
     - name: Write Ping Results to File
       ansible.builtin.template:
