@@ -1,20 +1,13 @@
 ---
-- name: Capture Connectivity Metrics for Windows Servers
-  hosts: windows_servers
+- name: Capture Connectivity Metrics for Linux Servers
+  hosts: secure_servers
   gather_facts: true
-  vars:
-    ansible_user: ansible
-    ansible_password: Windows00
-    ansible_connection: winrm
-    ansible_port: 5985
-    ansible_winrm_transport: ntlm
-    ansible_winrm_server_cert_validation: ignore
 
   tasks:
-    - name: Ping Windows Servers
-      ansible.windows.win_ping:
+    - name: Ping Red Hat Enterprise Linux Servers
+      ansible.builtin.ping:
       register: ping_result
-        #      when: ansible_facts['distribution'] == "RedHat"
+      when: ansible_facts['distribution'] == "RedHat"
 
     - name: Calculate Reachability Percentage
       ansible.builtin.set_fact:
@@ -24,10 +17,11 @@
 - name: Write Connectivity Results to File
   hosts: nfs.ludwar.ca
   gather_facts: false
-
+  
   tasks:
-    - name: Populate results to connectivity report
+    - name: Populate results into connectivity report
       ansible.builtin.template:
         src: connectivity.j2
         dest: /home/aludwar/connectivity_report.txt
         mode: "0644"
+      delegate_to: nfs.ludwar.ca
