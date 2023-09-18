@@ -22,7 +22,7 @@
   tasks:
     - name: Populate results into connectivity report
       ansible.builtin.template:
-        src: connectivity.j2
+        src: connectivity_l.j2
         dest: /home/aludwar/connectivity_report.txt
         mode: "0644"
       delegate_to: nfs.ludwar.ca
