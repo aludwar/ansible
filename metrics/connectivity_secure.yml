@@ -7,10 +7,10 @@
     - name: Ping Secure Servers
       ansible.builtin.ping:
       register: ping_result
-      when: ansible_facts['distribution'] == "RedHat"
 
     - name: Calculate Reachability Percentage
       ansible.builtin.set_fact:
+        cacheable: true
         reachable: "{{ ansible_play_hosts | length }}"
         total_servers: "{{ ansible_play_hosts_all | length }}"
 

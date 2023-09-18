@@ -17,17 +17,13 @@
 
     - name: Calculate Reachability Percentage
       ansible.builtin.set_fact:
+        cacheable: true
         reachable: "{{ ansible_play_hosts | length }}"
         total_servers: "{{ ansible_play_hosts_all | length }}"
 
 - name: Write Connectivity Results to File
   hosts: nfs.ludwar.ca
   gather_facts: false
-
-  tasks:
-    - name: Print result
-      ansible.builtin.debug:
-        msg: "hostvars['win1.dev.ludwar.ca']['reachable']"
 
     - name: Populate results to connectivity report
       ansible.builtin.template:
