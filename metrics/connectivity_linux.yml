@@ -1,7 +1,7 @@
 ---
 - name: Capture Connectivity Metrics for Linux Servers
   hosts: linux_servers
-  gather_facts: true
+  gather_facts: false
 
   tasks:
     - name: Ping Red Hat Enterprise Linux Servers
@@ -11,13 +11,12 @@
 
     - name: Calculate Reachability Percentage
       ansible.builtin.set_fact:
-        cacheable: true
         reachable: "{{ ansible_play_hosts | length }}"
         total_servers: "{{ ansible_play_hosts_all | length }}"
 
 - name: Write Connectivity Results to File
   hosts: nfs.ludwar.ca
-  gather_facts: true
+  gather_facts: false
   remote_user: aludwar
   
   tasks:

@@ -1,7 +1,7 @@
 ---
 - name: Capture Connectivity Metrics for Windows Servers
   hosts: windows_servers
-  gather_facts: true
+  gather_facts: false
   vars:
     ansible_user: ansible
     ansible_password: Windows00
@@ -14,17 +14,15 @@
     - name: Ping Windows Servers
       ansible.windows.win_ping:
       register: ping_result
-        #      when: ansible_facts['distribution'] == "RedHat"
 
     - name: Calculate Reachability Percentage
       ansible.builtin.set_fact:
-        cacheable: true
         reachable: "{{ ansible_play_hosts | length }}"
         total_servers: "{{ ansible_play_hosts_all | length }}"
 
 - name: Write Connectivity Results to File
   hosts: nfs.ludwar.ca
-  gather_facts: true
+  gather_facts: false
 
   tasks:
     - name: Populate results to connectivity report
