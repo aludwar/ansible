@@ -1,13 +1,13 @@
 ---
 - name: Capture Connectivity Metrics for Windows Servers
-  hosts: all
+  hosts: 10.0.0.227
   gather_facts: true
 
   tasks:
     - name: Ping Windows Servers
-      ansible.builtin.ping:
+      ansible.wndows.win_ping:
       register: ping_result
-      when: ansible_facts['distribution'] == "RedHat"
+        #      when: ansible_facts['distribution'] == "RedHat"
 
     - name: Calculate Reachability Percentage
       ansible.builtin.set_fact:
@@ -16,7 +16,7 @@
 
     - name: Write Connectivity Results to File
       ansible.builtin.template:
-        src: connectivity.j2
+        src: metric_connectivity.j2
         dest: /home/aludwar/metric_connectivity_report.txt
         mode: "0644"
       delegate_to: nfs.ludwar.ca
