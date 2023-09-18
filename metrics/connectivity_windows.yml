@@ -1,6 +1,6 @@
 ---
 - name: Capture Connectivity Metrics for Windows Servers
-  hosts: 10.0.0.227
+  hosts: win1.dev.ludwar.ca
   gather_facts: true
   vars:
     ansible_user: ansible
