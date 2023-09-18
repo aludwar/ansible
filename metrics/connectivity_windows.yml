@@ -25,6 +25,7 @@
   hosts: nfs.ludwar.ca
   gather_facts: false
 
+  tasks:
     - name: Populate results to connectivity report
       ansible.builtin.template:
         src: connectivity.j2
