@@ -14,6 +14,10 @@
         reachable: "{{ ansible_play_hosts | length }}"
         total_servers: "{{ ansible_play_hosts_all | length }}"
 
+- name: Write Connectivity Results to File
+  hosts: nfs.ludwar.ca
+  
+  tasks:
     - name: Write Connectivity Results to File
       ansible.builtin.template:
         src: connectivity.j2
