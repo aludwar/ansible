@@ -25,6 +25,10 @@
   gather_facts: false
 
   tasks:
+    - name: Print result
+      ansible.builtin.debug:
+        msg: "hostvars['win1.dev.ludwar.ca']['reachable']"
+
     - name: Populate results to connectivity report
       ansible.builtin.template:
         src: connectivity.j2
