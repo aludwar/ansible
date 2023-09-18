@@ -1,6 +1,6 @@
 ---
 - name: Capture Connectivity Metrics for Windows Servers
-  hosts: win1.dev.ludwar.ca
+  hosts: windows_servers
   gather_facts: true
   vars:
     ansible_user: ansible
@@ -25,7 +25,7 @@
   hosts: nfs.ludwar.ca
 
   tasks:
-    - name: Write Connectivity Results to File
+    - name: Populate results to connectivity report
       ansible.builtin.template:
         src: connectivity.j2
         dest: /home/aludwar/metric_connectivity_report.txt
