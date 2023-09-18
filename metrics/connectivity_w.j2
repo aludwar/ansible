@@ -1,1 +1,1 @@
-Reachable Windows Hosts: {{ hostvars['win1.dev.ludwar.ca']['reachable'] }} / {{ hostvars['win1.dev.ludwar.ca']['total_servers'] }}
+Reachable Windows Hosts: {{ hostvars['win1.dev.ludwar.ca']['reachable'] }} / {{ hostvars['win1.dev.ludwar.ca']['total_servers'] }}  ({{ ( (hostvars['win1.dev.ludwar.ca']['reachable'] | int) / (hostvars['win1.dev.ludwar.ca']['total_servers'] | int) * 100) | round(2) }}%)
