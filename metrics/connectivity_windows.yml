@@ -2,10 +2,17 @@
 - name: Capture Connectivity Metrics for Windows Servers
   hosts: 10.0.0.227
   gather_facts: true
+  vars:
+    ansible_user: ansible
+    ansible_password: Windows00
+    ansible_connection: winrm
+    ansible_port: 5985
+    ansible_winrm_transport: ntlm
+    ansible_winrm_server_cert_validation: ignore
 
   tasks:
     - name: Ping Windows Servers
-      ansible.wndows.win_ping:
+      ansible.windows.win_ping:
       register: ping_result
         #      when: ansible_facts['distribution'] == "RedHat"
 
