@@ -23,7 +23,7 @@
 
 - name: Write Connectivity Results to File
   hosts: nfs.ludwar.ca
-  gather_facts: false
+  gather_facts: true
 
   tasks:
     - name: Populate results to connectivity report
