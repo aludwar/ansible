@@ -1,16 +1,17 @@
 ---
-- name: Capture Connectivity Metrics for Linux Servers
+- name: Capture Connectivity Metrics for Secure Servers
   hosts: secure_servers
   gather_facts: true
 
   tasks:
-    - name: Ping Red Hat Enterprise Linux Servers
+    - name: Ping Secure Servers
       ansible.builtin.ping:
       register: ping_result
       when: ansible_facts['distribution'] == "RedHat"
 
     - name: Calculate Reachability Percentage
       ansible.builtin.set_fact:
+        cacheable: true
         reachable: "{{ ansible_play_hosts | length }}"
         total_servers: "{{ ansible_play_hosts_all | length }}"
 
