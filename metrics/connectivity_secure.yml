@@ -20,9 +20,16 @@
   remote_user: aludwar
   
   tasks:
-    - name: Populate results into connectivity report
-      ansible.builtin.template:
-        src: connectivityi_s.j2
+#    - name: Populate results into connectivity report
+#      ansible.builtin.template:
+#        src: connectivityi_s.j2
+#        dest: /home/aludwar/connectivity_report.txt
+#        mode: "0644"
+#      delegate_to: nfs.ludwar.ca
+
+    - name: Append results to connectivity report
+      ansible.builtin.blockinfile:
         dest: /home/aludwar/connectivity_report.txt
-        mode: "0644"
+        block: "{{ lookup('template', 'connectivity_s.j2') }}"
+        marker: ""
       delegate_to: nfs.ludwar.ca

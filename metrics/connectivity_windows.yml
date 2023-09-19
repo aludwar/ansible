@@ -26,8 +26,15 @@
   gather_facts: false
 
   tasks:
-    - name: Populate results to connectivity report
-      ansible.builtin.template:
-        src: connectivity_w.j2
+#    - name: Populate results to connectivity report
+#      ansible.builtin.template:
+#        src: connectivity_w.j2
+#        dest: /home/aludwar/connectivity_report.txt
+#        mode: "0644"
+
+    - name: Append results to connectivity report
+      ansible.builtin.blockinfile:
         dest: /home/aludwar/connectivity_report.txt
-        mode: "0644"
+        block: "{{ lookup('template', 'connectivity_w.j2') }}"
+        marker: ""
+      delegate_to: nfs.ludwar.ca
