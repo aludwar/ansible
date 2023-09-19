@@ -17,7 +17,6 @@
 - name: Write Connectivity Results to File
   hosts: nfs.ludwar.ca
   gather_facts: false
-  remote_user: aludwar
   
   tasks:
     - name: Populate results into connectivity report
@@ -25,4 +24,6 @@
         src: connectivity_l.j2
         dest: /home/aludwar/connectivity_report.txt
         mode: "0644"
+        owner: aludwar
+        group: aludwar
       delegate_to: nfs.ludwar.ca
