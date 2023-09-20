@@ -6,15 +6,10 @@
     - name: Collect all facts from devices
       community.routeros.facts:
 
-    - name: Fetch device name 
+    - name: Backup device to local device storage
       community.routeros.command:
-        commands: /system identity print
-      register: device_hostname
+        commands: '/system backup save name="{{ ansible_facts.date_time.date }}.{{ ansible_net_hostname }}" dont-encrypt=yes'
 
-    - name: Print device name
-      ansible.builtin.debug:
-        var: device_hostname.stdout_lines
-
-    - name: Print ansible facts device name
-      ansible.builtin.debug:
-        var: ansible_net_hostname
+    - name: Copy backup file to local workstation
+      ansible.builtin.command: "sftp aludwar@{{ ansible_net_hostname }}:{{ ansible_facts.date_time.date }}.{{ ansible_net_hostname }}.backup /home/aludwar/Documents/al_consulting/HomeNetwork/"
+      delegate_to: 10.0.0.4
