@@ -1,0 +1,37 @@
+---
+- name: Query the Automation Controller API w/ User Token
+  hosts: localhost
+  gather_facts: false
+  vars:
+    token: 5qDAV0DUgwe1IcHAuUeEZnzET0Gves
+
+  tasks:
+    - name: Query Automation Controller API - Example 1
+      ansible.builtin.uri:
+        url: https://aap.ludwar.ca/api/v2/projects
+        method: GET
+        return_content: true
+        headers:
+          Content-Type: application/json
+          Authorization: Bearer 5qDAV0DUgwe1IcHAuUeEZnzET0Gves
+        validate_certs: false
+      register: projects
+
+    - name: Display query results
+      ansible.builtin.debug:
+        var: projects
+
+    - name: Query Automation Controller API - Example 2
+      ansible.builtin.uri:
+        url: https://aap.ludwar.ca/api/v2/projects
+        body_format: json
+        method: GET
+        return_content: true
+        headers:
+          Authorization: "Bearer {{ token }}"
+        validate_certs: false
+      register: projects2
+
+    - name: Display query results
+      ansible.builtin.debug:
+        var: projects2
