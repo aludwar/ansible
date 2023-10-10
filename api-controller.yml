@@ -15,6 +15,7 @@
           Content-Type: application/json
           Authorization: Bearer 5qDAV0DUgwe1IcHAuUeEZnzET0Gves
         validate_certs: false
+      no_log: true
       register: projects
 
     - name: Display query results
@@ -30,6 +31,7 @@
         headers:
           Authorization: "Bearer {{ token }}"
         validate_certs: false
+      no_log: true
       register: projects2
 
     - name: Display query results
