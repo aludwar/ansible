@@ -1,0 +1,14 @@
+---
+- name: Access Addition - User on-boarding
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Amazon Web Services - Add IAM User
+      amazon.aws.iam_user:
+        name: testuser1
+        password: Welcome00
+        state: absent
+
+
