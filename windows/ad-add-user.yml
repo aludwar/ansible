@@ -21,7 +21,8 @@
         postal_code: "{{ postal_code }}"
         country: US
         attributes:
-          telephoneNumber: "{{ telephone_number }}"
+          set:
+            telephoneNumber: "{{ telephone_number }}"
       register: new_user
 
     - name: Display User
