@@ -1,15 +1,10 @@
 ---
-- name: Helpdesk new user portal
-  hosts: "{{ _hosts | default('os_windows') }}"
+- name: Access Addition - User on-boarding
+  hosts: dc01
   gather_facts: false
 
   tasks:
-    - name: Setting host facts using complex arguments
-      ansible.builtin.set_fact:
-        temp_password: "{{ lookup('community.general.random_string', min_lower=1, min_upper=1, min_special=1, min_numeric=1) }}"
-        # Example result: ['&Qw2|E[-']
-
-    - name: Create new user
+    - name: Active Directory - Add User
       microsoft.ad.user:
         name: "{{ firstname }} {{ surname }}"
         firstname: "{{ firstname }}"
