@@ -1,0 +1,17 @@
+---
+- name: Access Removal - User off-boarding
+  hosts: dc01
+  gather_facts: false
+  vars:
+    sam_account_name: aludwar
+    firstname: Andrew
+    surname: Ludwar
+
+  tasks:
+    - name: Remove Active Directory Account
+      microsoft.ad.user:
+        name: "{{ firstname }} {{ surname }}"
+        firstname: "{{ firstname }}"
+        surname: "{{ surname }}"
+        sam_account_name: "{{ firstname[0] }}{{ surname }}"
+        state: absent
