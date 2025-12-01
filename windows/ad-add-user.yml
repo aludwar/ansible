@@ -2,6 +2,8 @@
 - name: Access Addition - User on-boarding
   hosts: dc01
   gather_facts: false
+  vars:
+    temp_password: Welcome00
 
   tasks:
     - name: Active Directory - Add User
