@@ -1,6 +1,6 @@
 ---
 - name: Access Removal - User off-boarding
-  hosts: "{{ _hosts | default('os_windows') }}"
+  hosts: dc01
   gather_facts: false
   vars:
     sam_account_name: aludwar
