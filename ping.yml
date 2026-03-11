@@ -1,6 +1,6 @@
 ---
 - name: Perform a basic ping test on Linux hosts
-  hosts: all
+  hosts: servers
   gather_facts: false
   become: false
   tasks:
