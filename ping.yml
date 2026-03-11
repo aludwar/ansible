@@ -1,0 +1,8 @@
+---
+- name: Perform a basic ping test on Linux hosts
+  hosts: all
+  gather_facts: false
+  become: false
+  tasks:
+    - name: Ping the hosts to verify connectivity
+      ansible.builtin.ping:
