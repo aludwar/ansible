@@ -30,7 +30,7 @@
       ansible.builtin.reboot:
         msg: "Rebooting to apply package updates"
         post_reboot_delay: 15
-        reboot_timeout: 500
+        reboot_timeout: 1000
 
     - name: Explicitly wait for the host to be reachable via port 22
       ansible.builtin.wait_for:
@@ -39,7 +39,6 @@
         delay: 10
         timeout: 300
         state: started
-      delegate_to: localhost
 
     - name: Attempt to ping the host to verify connectivity
       ansible.builtin.ping:
