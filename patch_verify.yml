@@ -25,6 +25,8 @@
       ansible.builtin.dnf:
         name: "*"
         state: latest
+      async: 600
+      poll: 30
 
     - name: Reboot the server and wait for it to come back up
       ansible.builtin.reboot:
