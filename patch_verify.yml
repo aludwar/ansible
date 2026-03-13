@@ -1,0 +1,54 @@
+---
+- name: Update Linux server packages and verify applications serially
+  hosts: servers
+  gather_facts: true
+
+  pre_tasks:
+    - name: Attempt to ping the host to verify connectivity
+      ansible.builtin.ping:
+      ignore_unreachable: true
+      register: ping_result
+
+    - name: Add successful hosts to an in-memory inventory group
+      ansible.builtin.group_by:
+        key: "verified_reachable_hosts"
+      when: ping_result.unreachable is not defined
+
+
+- name: Perform patching ONLY on reachable servers
+  hosts: verified_reachable_hosts
+  become: true
+  gather_facts: true
+  serial: 1
+
+  tasks:
+    - name: Ensure all packages are updated to the latest
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+
+    - name: Reboot the server and wait for it to come back up
+      ansible.builtin.reboot:
+        msg: "Rebooting to apply package updates"
+        post_reboot_delay: 15
+        reboot_timeout: 300
+
+    - name: Explicitly wait for the host to be reachable via port 22
+      ansible.builtin.wait_for:
+        host: "{{ ansible_host | default(inventory_hostname) }}"
+        port: 22
+        delay: 10
+        timeout: 300
+        state: started
+      delegate_to: localhost
+
+    - name: Attempt to ping the host to verify connectivity
+      ansible.builtin.ping:
+      register: post_ping_result
+
+#    - name: Verify the application health endpoint is responding
+#      ansible.builtin.uri:
+#        url: "http://127.0.0.1:8080/health"
+#        return_content: true
+#      register: app_verification
+#      failed_when: "'OK' not in app_verification.content"
