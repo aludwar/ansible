@@ -1,6 +1,6 @@
 ---
-- name: Update Linux server packages and verify applications serially
-  hosts: servers
+- name: Update Linux server packages and verify applications
+  hosts: servers:!dns
 
   pre_tasks:
     - name: Attempt to ping the host to verify connectivity
@@ -18,7 +18,6 @@
   hosts: verified_reachable_hosts
   become: true
   gather_facts: true
-  serial: 1
 
   tasks:
     - name: Ensure all packages are updated to the latest
@@ -31,6 +30,7 @@
         msg: "Rebooting to apply package updates"
         post_reboot_delay: 15
         reboot_timeout: 1000
+      throttle: 1
 
     - name: Explicitly wait for the host to be reachable via port 22
       ansible.builtin.wait_for:
@@ -39,10 +39,6 @@
         delay: 10
         timeout: 300
         state: started
-
-    - name: Attempt to ping the host to verify connectivity
-      ansible.builtin.ping:
-      register: post_ping_result
 
 #    - name: Verify the application health endpoint is responding
 #      ansible.builtin.uri:
