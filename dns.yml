@@ -1,6 +1,6 @@
 ---
 - name: Verify DNS functionality AND/OR refresh DNS cache
-  hosts: dns
+  hosts: dns.ludwar.ca
   gather_facts: false
   become: true
 
@@ -10,7 +10,7 @@
         cmd: "/usr/local/bin/{{ item }}"
       loop:
         - dns_resolve_test.sh
-        - refesh_populate_dns_cache_pihole.sh
-        - refesh_populate_dns_cache.sh
+        - refresh_populate_dns_cache_pihole.sh
+        - refresh_populate_dns_cache.sh
       register: service_verification
       changed_when: false
