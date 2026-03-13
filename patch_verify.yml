@@ -15,7 +15,7 @@
       when: ping_result.unreachable is not defined
 
 
-- name: Perform patching ONLY on reachable servers that aren't DNS
+- name: Patch ONLY reachable servers that aren't DNS, and don't reboot AAP
   hosts: verified_reachable_hosts
   become: true
   gather_facts: true
@@ -44,7 +44,7 @@
         state: started
 
 
-- name: Perform patching on DNS servers
+- name: Patch DNS servers and reboot one at a time
   hosts: dns
   become: true
   gather_facts: true
