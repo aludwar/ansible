@@ -1,7 +1,6 @@
 ---
 - name: Update Linux server packages and verify applications serially
   hosts: servers
-  gather_facts: true
 
   pre_tasks:
     - name: Attempt to ping the host to verify connectivity
