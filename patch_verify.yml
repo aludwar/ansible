@@ -1,6 +1,7 @@
 ---
 - name: Update Linux/DNS server packages and verify applications
   hosts: servers:!dns
+  gather_facts: false
 
   pre_tasks:
     - name: Attempt to ping the host to verify connectivity
