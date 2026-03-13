@@ -33,6 +33,7 @@
         msg: "Rebooting to apply package updates"
         post_reboot_delay: 15
         reboot_timeout: 300
+      when: inventory_hostname != groups['aap']
 
     - name: Explicitly wait for the host to be reachable via port 22
       ansible.builtin.wait_for:
