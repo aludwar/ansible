@@ -44,8 +44,8 @@
         state: started
 
 
-- name: Patch DNS servers and reboot one at a time
-  hosts: dns
+- name: Patch DNS server and reboot
+  hosts: dns.ludwar.ca
   become: true
   gather_facts: true
 
@@ -59,7 +59,7 @@
       ansible.builtin.reboot:
         msg: "Rebooting to apply package updates"
         post_reboot_delay: 15
-        reboot_timeout: 1000
+        reboot_timeout: 300
       throttle: 1
 
     - name: Explicitly wait for the host to be reachable via port 22
@@ -68,6 +68,33 @@
         port: 22
         delay: 10
         timeout: 300
+        state: started
+
+
+- name: Patch DNS filter server and reboot
+  hosts: dnsfilter.ludwar.ca
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Ensure all packages are updated to the latest
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+
+    - name: Reboot the server and wait for it to come back up
+      ansible.builtin.reboot:
+        msg: "Rebooting to apply package updates"
+        post_reboot_delay: 15
+        reboot_timeout: 1500
+      throttle: 1
+
+    - name: Explicitly wait for the host to be reachable via port 22
+      ansible.builtin.wait_for:
+        host: "{{ ansible_host | default(inventory_hostname) }}"
+        port: 22
+        delay: 10
+        timeout: 1500
         state: started
 
 #    - name: Verify the application health endpoint is responding
