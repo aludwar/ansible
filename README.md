@@ -1,5 +1,9 @@
 # Ansible Code - Various Use Cases and PoC Material
 
+## Folders: aap_casc
+
+Contains an example playbook structure and configuration items for using Configuration As Code to configure a blank Ansible Automation Platform (AAP) 2.6+ environment.
+
 ## Folders: aws, azure, rhv
 
 Contains example playbooks that make use of AWS/Azure provisioning, or Red Hat Virtualization provisioning exclusively.
