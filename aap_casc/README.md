@@ -5,16 +5,16 @@
 
 1. Follow these instructions linked in the Red Hat CoP - Getting Started docs section (link below): 
 
-Specifically, do these steps:  
+   Specifically, do these steps:  
 
-Step 1: Create a Requirements File  
-Step 2: Install the Collections  
-...  
-Step 1. Create Your Project Structure  
-Step 2. Create Authentication Variables  
-Step 3. Create Your First Configuration  
-Step 4. Create your Playbook  
-Step 5. Run Your Configuration  
+   Step 1: Create a Requirements File  
+   Step 2: Install the Collections  
+   ...  
+   Step 1. Create Your Project Structure  
+   Step 2. Create Authentication Variables  
+   Step 3. Create Your First Configuration  
+   Step 4. Create your Playbook  
+   Step 5. Run Your Configuration  
 
 [Red Hat CoP - infra.aap_configuration - Getting Started](https://github.com/redhat-cop/infra.aap_configuration/blob/devel/docs/GETTING_STARTED.md)
 
