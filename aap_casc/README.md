@@ -25,7 +25,7 @@ For some additional perspective from a working example, here are my created file
 
 The minimum amount of files for getting Configuration as Code running (in these examples):
 
-`
+```
 $ tree *
 ansible.cfg
 configs
@@ -35,7 +35,7 @@ configs
 deploy_aap.yml
 env.yml
 requirements.yml
-`
+```
 
 * ansible.cfg - Configuration file for defining items, specifically Galaxy & Automation Hub in order to download the correct collections
 * requirements.yml - A list of the collections to download
@@ -54,7 +54,7 @@ I've included a few more files than the bare minimum as examples, but you can sa
 
 ### Vetted Example #2 - Basic "Get It Working" + Basic 2 "Add More Examples Of Each Type"
 
-`
+```
 $ tree
 ansible.cfg
 configs
@@ -70,7 +70,7 @@ deploy_aap.yml
 env.yml
 inventory
 requirements.yml
-`
+```
 
 * configs/credentials.yml - Example to show creating Access Tokens and SSH key
 * configs/hub_remotes.yml - Example to show creating Automation Hub repos to download collections
