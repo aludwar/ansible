@@ -77,6 +77,17 @@ I've included a few more files than the bare minimum as examples, but you can sa
 > [!CAUTION]
 > I've purposely left unencrypted credentials in env.yml and configs/auth.yml for simplicity sake, so you can see the exact syntax/formatting. Once you get this working, ENCRYPT these files with ansible-vault. DO NOT COMMIT THESE ANYWHERE WITHOUT FIRST ENCRYPTING THEM.
 
+
+**Finally**, run the `deploy_aap.yml` playbook:
+
+# If using vault-encrypted credentials
+ansible-playbook deploy_aap.yml --ask-vault-pass
+
+# Or without vault
+ansible-playbook deploy_aap.yml
+
+
+
 ### Vetted Example #2 - Basic "Get It Working" + Basic 2 "Add More Examples Of Each Type"
 
 ```
