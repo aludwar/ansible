@@ -20,6 +20,9 @@
 That should be enough to get a basic Configuration as Code structure setup, where you are connecting to a freshly deployed AAP 2.6+ environment in order to configure it.
  
 
+---
+
+
 ### Vetted Example #1 - Basic "Get It Working"
 
 For some additional perspective, here are my created files based on the above steps as I worked through them. Please feel free to shamelessly copy and modify them to your liking. The minimum amount of files for getting Configuration as Code running (in these examples):
@@ -87,6 +90,9 @@ ansible-playbook deploy_aap.yml --ask-vault-pass
 # Or without vault
 ansible-playbook deploy_aap.yml
 ```
+
+
+---
 
 
 ### Vetted Example #2 - Basic "Get It Working" + Basic 2 "Add More Examples Of Each Type"
