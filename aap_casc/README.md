@@ -1,7 +1,7 @@
 # Configuration as Code Official Instruction Guide
 
 > [!IMPORTANT]
-> You will need an Ansible Automation Platform (AAP) 2.6+ environment already deployed to run this automation code against. This code does not deploy the AAP environment for you, rather it configures it once it's been installed. You may [read the docs](https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html-single/containerized_installation/index) on how to install AAP 2.6+.
+> You will need an Ansible Automation Platform (AAP) 2.6+ environment already deployed to run this automation code against. This code does not deploy the AAP environment for you, rather it configures it once it's already been installed. You may [read the docs](https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html-single/containerized_installation/index) on how to install AAP 2.6+.
 
 1. Follow [these instructions](https://github.com/redhat-cop/infra.aap_configuration/blob/devel/docs/GETTING_STARTED.md) from the Red Hat CoP - Getting Started docs section. 
 
@@ -79,6 +79,10 @@ I've included a few more files than the bare minimum as examples, but you can sa
 
 > [!CAUTION]
 > I've purposely left unencrypted credentials in env.yml and configs/auth.yml for simplicity sake, so you can see the exact syntax/formatting. Once you get this working, ENCRYPT these files with ansible-vault. DO NOT COMMIT THESE ANYWHERE WITHOUT FIRST ENCRYPTING THEM.
+
+
+
+**Fourth**, make any modifications you'd like to the files in the configs/ directory.
 
 
 **Finally**, run the `deploy_aap.yml` playbook:
