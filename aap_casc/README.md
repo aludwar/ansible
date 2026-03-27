@@ -74,6 +74,8 @@ requirements.yml
 I've included a few more files than the bare minimum as examples, but you can safely delete all of these and only keep ones the mentioned above to get Configuration as Code working. If you want to try a few different configuration items as I have (I feel these are the most common items folks want to configure in the platform) you may use all of my files as an example.
 
 
+> [!CAUTION]
+> I've purposely left unencrypted credentials in env.yml and configs/auth.yml for simplicity sake, so you can see the exact syntax/formatting. Once you get this working, ENCRYPT these files with ansible-vault. DO NOT COMMIT THESE ANYWHERE WITHOUT FIRST ENCRYPTING THEM.
 
 ### Vetted Example #2 - Basic "Get It Working" + Basic 2 "Add More Examples Of Each Type"
 
