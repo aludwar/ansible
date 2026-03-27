@@ -80,12 +80,13 @@ I've included a few more files than the bare minimum as examples, but you can sa
 
 **Finally**, run the `deploy_aap.yml` playbook:
 
+```
 # If using vault-encrypted credentials
 ansible-playbook deploy_aap.yml --ask-vault-pass
 
 # Or without vault
 ansible-playbook deploy_aap.yml
-
+```
 
 
 ### Vetted Example #2 - Basic "Get It Working" + Basic 2 "Add More Examples Of Each Type"
