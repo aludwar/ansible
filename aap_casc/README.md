@@ -21,9 +21,8 @@ That should be enough to get a basic Configuration as Code structure setup, wher
 
 ### Vetted Example #1 - Basic "Get It Working"
 
-For some additional perspective from a working example, here are my created files based on the above steps and included examples there as I worked through the same steps:
+For some additional perspective, here are my created files based on the above steps as I worked through them. The minimum amount of files for getting Configuration as Code running (in these examples):
 
-The minimum amount of files for getting Configuration as Code running (in these examples):
 
 ```
 $ tree *
@@ -37,18 +36,32 @@ env.yml
 requirements.yml
 ```
 
-* ansible.cfg - Configuration file for defining items, specifically Galaxy & Automation Hub in order to download the correct collections
-* requirements.yml - A list of the collections to download
-* env.yml - vault file for environment variables (Ansible Galaxy / Automation Hub token)
-* configs/auth.yml - vault file for passwords, credentials, etc.
-* configs/organizations.yml - Define your AAP organization
-* configs/projects.yml - Setup github/gitlab repos as projects 
-* deploy_aap.yml - playbook to apply the configs directory to an AAP environment
+* `ansible.cfg` - Configuration file for defining items, specifically Galaxy & Automation Hub in order to download the correct collections
+* `requirements.yml` - A list of the collections to download
+* `env.yml` - File for environment variables to export (Ansible Galaxy / Automation Hub token) (Encrypt this with Ansible Vault if you plan to commit to a public repository/source control)
+* `configs/auth.yml` - File for passwords, credentials, etc.  (Encyrpt this with Ansible Vault if you plan to commit to a public repository/source control)
+* `configs/organizations.yml` - Define your AAP organization
+* `configs/projects.yml` - Setup github/gitlab repos as projects 
+* `deploy_aap.yml` - playbook to apply the configs directory to an AAP environment
 
 
-You will need to populate your own env.yml token, as well as change the configs/auth.yml file to reflect your credentials for your environment. I've left some from my environment intact as an example, and changed some other more sensitive ones to CHANGEME, which you should change prior to running deploy_aap.yml.
+*First*, you will need to retrieve your own Automation Hub token, include it in env.yml, and export that environment variable. Combined with the settings provided in ansible.cfg, this will allow you to login to Red Hat Automation Hub and download the appropriate collections. You will need to do this prior to installing the collections in the requirements.yml file:
 
-I've included a few more files than the bare minimum as examples, but you can safely delete all of these and only keep the mentioned above to get Configuration as Code working. If you want to try a few different configuration items as I have (I feel these are the most common items folks want to configure in the platform) you may use all of my files as an example.
+1. Get [Automation Hub Token](https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.4/html/getting_started_with_automation_hub/hub-create-api-token#proc-create-api-token)
+2. Modify env.yml file with Automation Hub Token retrieved in previous step.
+3. Export the environment variable in your shell:
+
+`$ export ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN=<your token here>`
+
+4. Install the provided collections in requirements.yml:
+
+`$ ansible-galaxy collection install -r requirements.yml`
+
+
+
+*Second*, change the configs/auth.yml file to reflect your credentials for your environment. I've left some from my environment intact as an example, and changed some other more sensitive ones to CHANGEME, which *you should change prior to running deploy_aap.yml*.
+
+I've included a few more files than the bare minimum as examples, but you can safely delete all of these and only keep ones the mentioned above to get Configuration as Code working. If you want to try a few different configuration items as I have (I feel these are the most common items folks want to configure in the platform) you may use all of my files as an example.
 
 
 
