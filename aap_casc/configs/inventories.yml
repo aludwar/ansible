@@ -1,0 +1,21 @@
+---
+controller_inventories:
+  - name: "Demo Inventory"
+    organization: Default
+    state: absent
+
+  - name: HomeLab
+    organization: HomeLab
+    description: All hosts within the HomeLab
+    state: present
+
+controller_inventory_sources:
+  - name: "HomeLab - sourcefile"
+    inventory: "HomeLab"
+    organization: "HomeLab"
+    source: scm
+    source_project: "gitlab - aludwar - aap-cac"
+    source_path: "inventory"
+    update_on_launch: true
+    overwrite: true
+    update_on_project_update: true

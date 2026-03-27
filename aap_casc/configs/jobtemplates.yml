@@ -1,0 +1,47 @@
+---
+controller_templates:
+  - name: "Demo Job Template"
+    organization: "Default"
+    state: absent
+
+  - name: LINUX / Ping inventory
+    organization: HomeLab
+    project: github - aludwar - ansible
+    playbook: ping.yml
+    inventory: HomeLab
+    credentials:
+      - "SSH - aludwar"
+
+  - name: LINUX / Patch servers to latest
+    organization: HomeLab
+    project: github - aludwar - ansible
+    playbook: patch_verify.yml
+    inventory: HomeLab
+    credentials:
+      - "SSH - aludwar"
+
+  - name: LINUX / Verify DNS services
+    organization: HomeLab
+    project: github - aludwar - ansible
+    playbook: dns.yml
+    inventory: HomeLab
+    credentials:
+      - "SSH - aludwar"
+
+
+controller_workflows:
+  - name: LINUX / Patch all servers, verify DNS
+    organization: HomeLab
+    workflow_nodes:
+      - identifier: "LINUX / Patch servers to latest"
+        unified_job_template:
+          name: "LINUX / Patch servers to latest"
+          type: "job_template"
+        related:
+          success_nodes:
+            - identifier: "LINUX / Verify DNS services"
+
+      - identifier: "LINUX / Verify DNS services"
+        unified_job_template:
+          name: "LINUX / Verify DNS services"
+          type: "job_template"

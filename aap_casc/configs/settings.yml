@@ -1,0 +1,4 @@
+---
+controller_settings:
+  - name: INSIGHTS_TRACKING_STATE
+    value: true

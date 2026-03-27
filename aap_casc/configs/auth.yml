@@ -1,0 +1,22 @@
+---
+# Connection details
+aap_hostname: https://aap.ludwar.ca
+aap_username: admin
+aap_password: redhat01
+aap_validate_certs: false  # Set to true in production
+
+redhat_offline_token: CHANGEME
+
+aludwar_machine_password: "CHANGEME"
+aludwar_ssh_private_key: |
+  -----BEGIN OPENSSH PRIVATE KEY-----
+  CHANGEME, AND PRESERVE THE INDENTATION
+  -----END OPENSSH PRIVATE KEY-----
+
+aludwar_gitlab_token: CHANGEME
+aludwar_github_token: CHANGEME
+
+# Alternatively, use an OAuth token (recommended)
+# aap_hostname: aap.example.com
+# aap_token: your-oauth-token
+# aap_validate_certs: true

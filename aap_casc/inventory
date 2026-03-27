@@ -1,0 +1,14 @@
+[network]
+switch1.lab.example.com
+router1.lab.example.com
+
+[physical]
+server1.lab.example.com
+server2.lab.example.com
+
+[virtual]
+vm1.lab.example.com
+
+[servers:children]
+physical
+virtual

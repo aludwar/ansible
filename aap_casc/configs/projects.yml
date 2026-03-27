@@ -1,0 +1,32 @@
+---
+controller_projects:
+  - name: github - aludwar - ansible
+    organization: HomeLab
+    scm_type: git
+    scm_url: https://github.com/aludwar/ansible.git
+    scm_credential: GitHub Access Token - aludwar
+    scm_update_on_launch: true
+    scm_delete_on_update: true
+    description: Collection of playbooks and demos
+
+  - name: gitlab - aludwar - ansible
+    organization: HomeLab
+    scm_type: git
+    scm_url: https://gitlab.com/aludwar/ansible.git
+    scm_credential: GitLab Access Token - aludwar
+    scm_update_on_launch: true
+    scm_delete_on_update: true
+    description: Collection of playbooks and demos
+
+  - name: gitlab - aludwar - aap-cac
+    organization: HomeLab
+    scm_type: git
+    scm_url: https://gitlab.com/aludwar/aap-cac.git
+    scm_credential: GitLab Access Token - aludwar
+    scm_update_on_launch: true
+    scm_delete_on_update: true
+    description: Collection of playbooks and demos
+
+  - name: "Demo Project"
+    organization: Default
+    state: absent
