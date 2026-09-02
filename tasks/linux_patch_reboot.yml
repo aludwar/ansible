@@ -1,0 +1,31 @@
+---
+- name: Ensure all packages are updated to the latest (async)
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+  async: 600
+  poll: 30
+  when: patch_use_async | default(false)
+
+- name: Ensure all packages are updated to the latest
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+  when: not (patch_use_async | default(false))
+
+- name: Reboot the server and wait for it to come back up
+  ansible.builtin.reboot:
+    msg: "Rebooting to apply package updates"
+    post_reboot_delay: 15
+    reboot_timeout: "{{ patch_reboot_timeout | default(300) }}"
+  when: inventory_hostname not in (patch_no_reboot_hosts | default([]))
+  throttle: "{{ patch_serial | default(omit) }}"
+
+- name: Explicitly wait for the host to be reachable via port 22
+  ansible.builtin.wait_for:
+    host: "{{ ansible_host | default(inventory_hostname) }}"
+    port: 22
+    delay: 10
+    timeout: "{{ patch_wait_timeout | default(300) }}"
+    state: started
+  when: inventory_hostname not in (patch_no_reboot_hosts | default([]))

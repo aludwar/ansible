@@ -1,6 +1,6 @@
 ---
-- name: Update Linux/DNS server packages and verify applications
-  hosts: servers:!dns
+- name: Verify connectivity to media and w3 servers
+  hosts: media:w3
   gather_facts: false
 
   pre_tasks:
@@ -11,95 +11,39 @@
 
     - name: Add successful hosts to an in-memory inventory group
       ansible.builtin.group_by:
-        key: "verified_reachable_hosts"
+        key: verified_reachable_hosts
       when: ping_result.unreachable is not defined
 
 
-- name: Patch ONLY reachable servers that aren't DNS, and don't reboot AAP
+- name: Patch reachable media and w3 servers
   hosts: verified_reachable_hosts
   become: true
   gather_facts: true
-
+  vars:
+    patch_use_async: true
+    patch_reboot_timeout: 300
+    patch_wait_timeout: 300
+    patch_no_reboot_groups:
+      - aap
+    patch_no_reboot_hostnames:
+      - w3.ludwar.ca
+    patch_no_reboot_hosts: "{{
+      (patch_no_reboot_groups | default([]) | map('extract', groups) | flatten)
+      + (patch_no_reboot_hostnames | default([]))
+      | unique
+    }}"
   tasks:
-    - name: Ensure all packages are updated to the latest
-      ansible.builtin.dnf:
-        name: "*"
-        state: latest
-      async: 600
-      poll: 30
-
-    - name: Reboot the server and wait for it to come back up
-      ansible.builtin.reboot:
-        msg: "Rebooting to apply package updates"
-        post_reboot_delay: 15
-        reboot_timeout: 300
-      when: inventory_hostname is not in groups['aap']
-
-    - name: Explicitly wait for the host to be reachable via port 22
-      ansible.builtin.wait_for:
-        host: "{{ ansible_host | default(inventory_hostname) }}"
-        port: 22
-        delay: 10
-        timeout: 300
-        state: started
+    - ansible.builtin.include_tasks: tasks/linux_patch_reboot.yml
 
 
 - name: Patch DNS server and reboot
   hosts: dns.ludwar.ca
   become: true
   gather_facts: true
-
+  vars:
+    patch_use_async: false
+    patch_serial: 1
+    patch_reboot_timeout: 300
+    patch_wait_timeout: 300
   tasks:
-    - name: Ensure all packages are updated to the latest
-      ansible.builtin.dnf:
-        name: "*"
-        state: latest
-
-    - name: Reboot the server and wait for it to come back up
-      ansible.builtin.reboot:
-        msg: "Rebooting to apply package updates"
-        post_reboot_delay: 15
-        reboot_timeout: 300
-      throttle: 1
-
-    - name: Explicitly wait for the host to be reachable via port 22
-      ansible.builtin.wait_for:
-        host: "{{ ansible_host | default(inventory_hostname) }}"
-        port: 22
-        delay: 10
-        timeout: 300
-        state: started
-
-
-- name: Patch DNS filter server and reboot
-  hosts: dnsfilter.ludwar.ca
-  become: true
-  gather_facts: true
-
-  tasks:
-    - name: Ensure all packages are updated to the latest
-      ansible.builtin.dnf:
-        name: "*"
-        state: latest
-
-    - name: Reboot the server and wait for it to come back up
-      ansible.builtin.reboot:
-        msg: "Rebooting to apply package updates"
-        post_reboot_delay: 15
-        reboot_timeout: 1500
-      throttle: 1
-
-    - name: Explicitly wait for the host to be reachable via port 22
-      ansible.builtin.wait_for:
-        host: "{{ ansible_host | default(inventory_hostname) }}"
-        port: 22
-        delay: 10
-        timeout: 1500
-        state: started
-
-#    - name: Verify the application health endpoint is responding
-#      ansible.builtin.uri:
-#        url: "http://127.0.0.1:8080/health"
-#        return_content: true
-#      register: app_verification
-#      failed_when: "'OK' not in app_verification.content"
+    - ansible.builtin.include_tasks: tasks/linux_patch_reboot.yml
