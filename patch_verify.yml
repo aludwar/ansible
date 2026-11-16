@@ -1,49 +1,38 @@
 ---
-- name: Verify connectivity to media and w3 servers
-  hosts: media:w3
-  gather_facts: false
-
-  pre_tasks:
-    - name: Attempt to ping the host to verify connectivity
-      ansible.builtin.ping:
-      ignore_unreachable: true
-      register: ping_result
-
-    - name: Add successful hosts to an in-memory inventory group
-      ansible.builtin.group_by:
-        key: verified_reachable_hosts
-      when: ping_result.unreachable is not defined
-
-
-- name: Patch reachable media and w3 servers
-  hosts: verified_reachable_hosts
+# Rolling patch for HomeLab Linux (inventory groups: laptop, physical, dns, w3, aap).
+# aap: not patched here (separate process).
+# w3: patched in play 1; hypervisor reboot is out of band—not in this playbook.
+- name: Apply package updates
+  hosts: laptop:physical:dns:!aap
   become: true
   gather_facts: true
   vars:
     patch_use_async: true
+    patch_skip_reboot: true
+  tasks:
+    - ansible.builtin.include_tasks: tasks/linux_patch_dnf.yml
+
+- name: Rolling reboot for laptops and physical hosts
+  hosts: laptop:physical:!dns:!w3:!aap
+  become: true
+  gather_facts: false
+  vars:
+    patch_skip_dnf: true
+    patch_require_dns_up: true
     patch_reboot_timeout: 300
     patch_wait_timeout: 300
-    patch_no_reboot_groups:
-      - aap
-    patch_no_reboot_hostnames:
-      - w3.ludwar.ca
-    patch_no_reboot_hosts: "{{
-      (patch_no_reboot_groups | default([]) | map('extract', groups) | flatten)
-      + (patch_no_reboot_hostnames | default([]))
-      | unique
-    }}"
   tasks:
-    - ansible.builtin.include_tasks: tasks/linux_patch_reboot.yml
+    - ansible.builtin.include_tasks: tasks/linux_reboot_after_patch.yml
 
-
-- name: Patch DNS server and reboot
-  hosts: dns.ludwar.ca
+- name: Reboot DNS servers
+  hosts: dns
   become: true
-  gather_facts: true
+  gather_facts: false
+  serial: 1
   vars:
-    patch_use_async: false
+    patch_skip_dnf: true
     patch_serial: 1
     patch_reboot_timeout: 300
     patch_wait_timeout: 300
   tasks:
-    - ansible.builtin.include_tasks: tasks/linux_patch_reboot.yml
+    - ansible.builtin.include_tasks: tasks/linux_reboot_after_patch.yml

@@ -1,0 +1,14 @@
+---
+- name: Ensure all packages are updated to the latest (async)
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+  async: 600
+  poll: 30
+  when: patch_use_async | default(false)
+
+- name: Ensure all packages are updated to the latest
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+  when: not (patch_use_async | default(false))
