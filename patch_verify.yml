@@ -13,7 +13,6 @@
   gather_facts: false
   vars:
     patch_use_async: true
-    patch_skip_reboot: true
   tasks:
     - name: Run package update tasks
       ansible.builtin.include_tasks: tasks/linux_patch_dnf.yml
@@ -24,6 +23,7 @@
   gather_facts: false
   vars:
     patch_skip_dnf: true
+    patch_reboot_only_if_changed: true
     patch_require_dns_up: true
     patch_reboot_timeout: 300
     patch_wait_timeout: 300

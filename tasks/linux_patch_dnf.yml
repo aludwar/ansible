@@ -5,10 +5,16 @@
     state: latest
   async: 600
   poll: 30
+  register: patch_dnf_result
   when: patch_use_async | default(false)
 
 - name: Ensure all packages are updated to the latest  # noqa: package-latest
   ansible.builtin.dnf:
     name: "*"
     state: latest
+  register: patch_dnf_result
   when: not (patch_use_async | default(false))
+
+- name: Record whether package updates changed the system
+  ansible.builtin.set_fact:
+    patch_packages_changed: "{{ patch_dnf_result.changed | default(false) }}"
