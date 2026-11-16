@@ -2,10 +2,15 @@
 # Rolling patch for HomeLab Linux (inventory groups: laptop, physical, dns, w3, aap).
 # aap: not patched here (separate process).
 # w3: patched in play 1; hypervisor reboot is out of band—not in this playbook.
+- name: Gather facts for patch targets
+  hosts: laptop:physical:dns
+  become: false
+  gather_facts: true
+
 - name: Apply package updates
   hosts: laptop:physical:dns
   become: true
-  gather_facts: true
+  gather_facts: false
   vars:
     patch_use_async: true
     patch_skip_reboot: true
