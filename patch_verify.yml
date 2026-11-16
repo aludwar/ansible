@@ -3,17 +3,18 @@
 # aap: not patched here (separate process).
 # w3: patched in play 1; hypervisor reboot is out of band—not in this playbook.
 - name: Apply package updates
-  hosts: laptop:physical:dns:!aap
+  hosts: laptop:physical:dns
   become: true
   gather_facts: true
   vars:
     patch_use_async: true
     patch_skip_reboot: true
   tasks:
-    - ansible.builtin.include_tasks: tasks/linux_patch_dnf.yml
+    - name: Run package update tasks
+      ansible.builtin.include_tasks: tasks/linux_patch_dnf.yml
 
-- name: Rolling reboot for laptops and physical hosts
-  hosts: laptop:physical:!dns:!w3:!aap
+- name: Rolling reboot for laptops, media, dns hosts
+  hosts: laptop:media.ludwar.ca:dns
   become: true
   gather_facts: false
   vars:
@@ -22,17 +23,5 @@
     patch_reboot_timeout: 300
     patch_wait_timeout: 300
   tasks:
-    - ansible.builtin.include_tasks: tasks/linux_reboot_after_patch.yml
-
-- name: Reboot DNS servers
-  hosts: dns
-  become: true
-  gather_facts: false
-  serial: 1
-  vars:
-    patch_skip_dnf: true
-    patch_serial: 1
-    patch_reboot_timeout: 300
-    patch_wait_timeout: 300
-  tasks:
-    - ansible.builtin.include_tasks: tasks/linux_reboot_after_patch.yml
+    - name: Run post-patch reboot tasks
+      ansible.builtin.include_tasks: tasks/linux_reboot_after_patch.yml

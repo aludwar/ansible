@@ -1,5 +1,5 @@
 ---
-- name: Ensure all packages are updated to the latest (async)
+- name: Ensure all packages are updated to the latest (async)  # noqa: package-latest
   ansible.builtin.dnf:
     name: "*"
     state: latest
@@ -7,7 +7,7 @@
   poll: 30
   when: patch_use_async | default(false)
 
-- name: Ensure all packages are updated to the latest
+- name: Ensure all packages are updated to the latest  # noqa: package-latest
   ansible.builtin.dnf:
     name: "*"
     state: latest
