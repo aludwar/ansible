@@ -16,7 +16,6 @@
     post_reboot_delay: 15
     reboot_timeout: "{{ patch_reboot_timeout | default(300) }}"
   when: inventory_hostname not in (patch_no_reboot_hosts | default([]))
-  throttle: "{{ patch_serial | default(omit) }}"
 
 - name: Explicitly wait for the host to be reachable via port 22
   ansible.builtin.wait_for:
