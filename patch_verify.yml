@@ -1,14 +1,15 @@
 ---
 # Rolling patch for HomeLab Linux (inventory groups: laptop, physical, dns, w3, aap).
-# aap: not patched here (separate process).
-# w3: patched in play 1; hypervisor reboot is out of band—not in this playbook.
+# aap: not patched or rebooted here (separate process).
+# w3: may be patched in play 2 if in physical; never rebooted (dns and aap run on w3).
+# After all hosts finish play 2, play 3 reboots laptop, physical, and dns in parallel when DNF changed.
 - name: Gather facts for patch targets
-  hosts: laptop:physical:dns
+  hosts: laptop:physical:dns:!aap
   become: false
   gather_facts: true
 
 - name: Apply package updates
-  hosts: laptop:physical:dns
+  hosts: laptop:physical:dns:!aap
   become: true
   gather_facts: false
   vars:
@@ -17,14 +18,13 @@
     - name: Run package update tasks
       ansible.builtin.include_tasks: tasks/linux_patch_dnf.yml
 
-- name: Rolling reboot for laptops, media, dns hosts
-  hosts: laptop:media.ludwar.ca:dns
+- name: Reboot hosts after package updates
+  hosts: laptop:physical:dns:!w3:!aap
   become: true
   gather_facts: false
   vars:
     patch_skip_dnf: true
     patch_reboot_only_if_changed: true
-    patch_require_dns_up: true
     patch_reboot_timeout: 300
     patch_wait_timeout: 300
   tasks:
