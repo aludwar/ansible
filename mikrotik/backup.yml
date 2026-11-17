@@ -1,15 +1,65 @@
 ---
-- name: Backup Mikrotik RouterOS Configuration
-  hosts: routeros
-  remote_user: aludwar
+# Collections: ansible-galaxy collection install -r mikrotik/requirements.yml
+# On backup_delegate_host: Python packages paramiko and scp for net_get.
+- name: Backup Mikrotik RouterOS configuration
+  hosts: network
+  gather_facts: false
+  vars:
+    backup_timestamp: "{{ lookup('pipe', 'date +%Y-%m-%d-%H%M') }}"
+    backup_basename: "{{ backup_timestamp }}_{{ inventory_hostname }}"
   tasks:
-    - name: Collect all facts from devices
+    - name: Ensure backup destination directory on delegate host
+      ansible.builtin.file:
+        path: "{{ backup_dest_dir }}"
+        state: directory
+        mode: "0700"
+      delegate_to: "{{ backup_delegate_host }}"
+      vars:
+        ansible_connection: ssh
+        ansible_network_os: null
+      run_once: true
+
+    - name: Collect RouterOS facts
       community.routeros.facts:
 
-    - name: Backup device to local device storage
+    - name: Save binary backup on device
       community.routeros.command:
-        commands: '/system backup save name="{{ ansible_facts.date_time.date }}.{{ ansible_net_hostname }}" dont-encrypt=yes'
+        commands: "/system backup save name={{ backup_basename }} dont-encrypt=yes"
+      when: backup_password is not defined
 
-    - name: Copy backup file to local workstation
-      ansible.builtin.command: "sftp aludwar@{{ ansible_net_hostname }}:{{ ansible_facts.date_time.date }}.{{ ansible_net_hostname }}.backup /home/aludwar/Documents/al_consulting/HomeNetwork/"
-      delegate_to: 10.0.0.4
+    - name: Save encrypted binary backup on device
+      community.routeros.command:
+        commands: "/system backup save name={{ backup_basename }} password={{ backup_password }}"
+      when: backup_password is defined
+
+    - name: Export configuration to file on device
+      community.routeros.command:
+        commands: /export show-sensitive file={{ backup_basename }}
+
+    - name: Copy binary backup to delegate host
+      ansible.netcommon.net_get:
+        src: "{{ backup_basename }}.backup"
+        dest: "{{ backup_dest_dir }}/{{ backup_basename }}.backup"
+      delegate_to: "{{ backup_delegate_host }}"
+
+    - name: Copy export to delegate host
+      ansible.netcommon.net_get:
+        src: "{{ backup_basename }}.rsc"
+        dest: "{{ backup_dest_dir }}/{{ backup_basename }}.rsc"
+      delegate_to: "{{ backup_delegate_host }}"
+
+    - name: Remove binary backup from device
+      community.routeros.command:
+        commands: /file remove {{ backup_basename }}.backup
+      failed_when: false
+
+    - name: Remove export from device
+      community.routeros.command:
+        commands: /file remove {{ backup_basename }}.rsc
+      failed_when: false
+
+    - name: Report backup paths
+      ansible.builtin.debug:
+        msg:
+          - "{{ backup_dest_dir }}/{{ backup_basename }}.backup"
+          - "{{ backup_dest_dir }}/{{ backup_basename }}.rsc"

@@ -1,0 +1,4 @@
+---
+ansible_network_cli_ssh_type: paramiko
+backup_delegate_host: "10.0.0.4"
+backup_dest_dir: "/home/aludwar/Documents/al_consulting/HomeNetwork"
