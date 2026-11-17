@@ -1,4 +1,15 @@
 ---
+- name: Confirm DNS is reachable before rebooting
+  ansible.builtin.wait_for:
+    host: "{{ groups['dns'] | first }}"
+    port: 53
+    timeout: 60
+  delegate_to: localhost
+  when:
+    - patch_require_dns_up | default(false)
+    - inventory_hostname not in (patch_no_reboot_hosts | default([]))
+    - not (patch_reboot_only_if_changed | default(false)) or (patch_packages_changed | default(false) | bool)
+
 - name: Reboot the server and wait for it to come back up
   ansible.builtin.reboot:
     msg: "Rebooting to apply package updates"
