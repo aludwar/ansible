@@ -1,0 +1,13 @@
+---
+# Run from AAP workflow after patch + DNS verify only. Schedules w3 hypervisor reboot; job must not wait.
+# Cancel before delay: SSH to w3 and run shutdown -c.
+- name: Schedule w3 hypervisor reboot (does not wait for host)
+  hosts: w3.ludwar.ca
+  become: true
+  gather_facts: false
+  vars:
+    patch_w3_reboot_delay_minutes: 3
+    patch_reboot_delay_minutes: "{{ patch_w3_reboot_delay_minutes | int }}"
+  tasks:
+    - name: Run scheduled reboot tasks
+      ansible.builtin.include_tasks: tasks/linux_schedule_reboot.yml

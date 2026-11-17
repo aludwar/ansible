@@ -28,6 +28,16 @@ controller_templates:
     credentials:
       - "SSH - aludwar"
 
+  - name: LINUX / Schedule w3 hypervisor reboot
+    organization: HomeLab
+    project: github - aludwar - ansible
+    playbook: patch_w3_schedule_reboot.yml
+    inventory: HomeLab
+    credentials:
+      - "SSH - aludwar"
+    extra_vars:
+      patch_w3_reboot_delay_minutes: 3
+
 
 controller_workflows:
   - name: LINUX / Patch all servers, verify DNS
@@ -44,4 +54,12 @@ controller_workflows:
       - identifier: "LINUX / Verify DNS services"
         unified_job_template:
           name: "LINUX / Verify DNS services"
+          type: "job_template"
+        related:
+          success_nodes:
+            - identifier: "LINUX / Schedule w3 hypervisor reboot"
+
+      - identifier: "LINUX / Schedule w3 hypervisor reboot"
+        unified_job_template:
+          name: "LINUX / Schedule w3 hypervisor reboot"
           type: "job_template"

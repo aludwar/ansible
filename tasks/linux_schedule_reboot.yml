@@ -1,0 +1,7 @@
+---
+- name: Schedule hypervisor reboot after delay
+  ansible.builtin.command:
+    cmd: >-
+      /sbin/shutdown -r +{{ patch_reboot_delay_minutes | int }}
+      Patch cycle — w3 hypervisor reboot scheduled by Ansible
+  changed_when: true
